@@ -466,7 +466,7 @@
 
                 <div class="input-group">
                     <input type="text" id="studentMatriculate" placeholder="Matriculation Number" required>
-                    <label for="studentMatriculate">Matriculation Number</label>
+                    <label for="studentMatriculate">Matriculation Number (eg; UBa21PB001)</label>
                 </div>
 
                 <div class="form-row">
@@ -517,7 +517,7 @@
                     <div class="form-column">
                         <div class="input-group password-group">
                             <input type="password" id="studentPassword" placeholder="Password" required>
-                            <label for="studentPassword">Password</label>
+                            <label for="studentPassword">Password (Atleast 8 characters)</label>
                             <div class="password-strength">
                                 <div class="password-strength-bar" id="studentPasswordStrength"></div>
                             </div>
@@ -592,7 +592,7 @@
                     <div class="form-column">
                         <div class="input-group password-group">
                             <input type="password" id="lecturerPassword" placeholder="Password" required>
-                            <label for="lecturerPassword">Password</label>
+                            <label for="lecturerPassword">Password (Atleast 8 characters)</label></label>
                             <div class="password-strength">
                                 <div class="password-strength-bar" id="lecturerPasswordStrength"></div>
                             </div>
@@ -622,29 +622,29 @@
     </div>
 
     <script>
-        const url='https://attendee-api.onrender.com'
+        const url = 'https://attendee-api.onrender.com'
 
-        window.addEventListener('load', async()=>{
+        window.addEventListener('load', async () => {
             const token = localStorage.getItem('access_token')
             const users = await fetch(`${url}/Attendee/user/`, {
-                            method: 'GET',
-                            headers: {
-                                'Authorization': `Bearer ${token}`
-                            }
-                        });
-                        const userData = await users.json();
-                        const userType = userData.user[0].user_type;
-                        if (userType === 'student') {
-                            window.location.href = 'student-dashboard.html'
-                        }
-                        else if (userType === 'lecturer') {
-                            window.location.href = 'lecturer-dashboard.html'
-                        }
-                        else {
-                            console.log('invalid user types')
-                            console.log(userType)
-                            console.log(userData)
-                        }
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            const userData = await users.json();
+            const userType = userData.user[0].user_type;
+            if (userType === 'student') {
+                window.location.href = 'student-dashboard.html'
+            }
+            else if (userType === 'lecturer') {
+                window.location.href = 'lecturer-dashboard.html'
+            }
+            else {
+                console.log('invalid user types')
+                console.log(userType)
+                console.log(userData)
+            }
         })
 
         // Tab switching functionality
@@ -730,10 +730,10 @@
 
                 })
                 Schools.addEventListener('change', async (e) => {
-                    const data=await fetch(`${url}/Attendee/department/${e.target.value}/`,{
-                        method:'GET'
+                    const data = await fetch(`${url}/Attendee/department/${e.target.value}/`, {
+                        method: 'GET'
                     })
-                    
+
 
                     const departments = await data.json()
                     console.log(departments)
@@ -769,7 +769,7 @@
 
             const password = document.getElementById('studentPassword').value;
             const confirmPassword = document.getElementById('studentConfirmPassword').value;
-            const studentUsername = document.getElementById('studentUsername').value
+            const studentUsername = document.getElementById('studentUsername').value;
             const studentFirstName = document.getElementById('studentFirstName').value;
             const studentLastName = document.getElementById('studentLastName').value;
             const studentEmail = document.getElementById('studentEmail').value;
@@ -777,10 +777,7 @@
             const studentMatriculate = document.getElementById('studentMatriculate').value;
             const studentSchool = document.getElementById('studentSchool').value;
             const studentDepartment = document.getElementById('studentDepartment').value;
-            const message = document.getElementById('message')
-
-            
-
+            const message = document.getElementById('message');
 
             if (password !== confirmPassword) {
                 alert('Passwords do not match!');
@@ -797,6 +794,13 @@
             const originalText = this.textContent;
             this.textContent = 'Creating Account...';
 
+            // Generate or retrieve persistent device ID
+            let deviceId = localStorage.getItem('device_id');
+            if (!deviceId) {
+                deviceId = crypto.randomUUID();
+                localStorage.setItem('device_id', deviceId);
+            }
+
             try {
                 const respone = await fetch(`${url}/Attendee/register/student/`, {
                     method: 'POST',
@@ -804,73 +808,74 @@
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
-                        'username': studentUsername, 'first_name': studentFirstName, 'last_name': studentLastName,
-                        'email': studentEmail, 'phone': studentPhone, 'password': password, 'school_name': studentSchool, 'department_name': studentDepartment,
-                        'matricule_number': studentMatriculate
+                        username: studentUsername,
+                        first_name: studentFirstName,
+                        last_name: studentLastName,
+                        email: studentEmail,
+                        phone: studentPhone,
+                        password: password,
+                        school_name: studentSchool,
+                        department_name: studentDepartment,
+                        matricule_number: studentMatriculate,
+                        device_id: deviceId
                     })
-                })
-                const data = await respone.json()
-                console.log(data)
-                if (respone.ok) {
+                });
 
+                const data = await respone.json();
+                console.log(data);
+
+                if (respone.ok) {
                     if (data.tokens.access && data.tokens.refresh) {
-                        localStorage.setItem('access_token', data.tokens.access)
-                        document.cookie = `refresh_token=${data.tokens.refresh}: HttpOnly; Secure`;
-                        console.log(data.tokens.access)
-                        console.log(data.tokens.refresh)
-                        message.textContent = data.message
-                        message.style.color = '#10b981'
+                        localStorage.setItem('access_token', data.tokens.access);
+                        document.cookie = `refresh_token=${data.tokens.refresh}; HttpOnly; Secure`;
+                        message.textContent = data.message;
+                        message.style.color = '#10b981';
+
                         const users = await fetch(`${url}/Attendee/user/`, {
                             method: 'GET',
                             headers: {
                                 'Authorization': `Bearer ${data.tokens.access}`
                             }
                         });
+
                         const userData = await users.json();
                         const userType = userData.user[0].user_type;
+
                         if (userType === 'student') {
-                            window.location.href = 'student-dashboard.html'
+                            window.location.href = 'student-dashboard.html';
+                        } else if (userType === 'lecturer') {
+                            window.location.href = 'lecturer-dashboard.html';
+                        } else {
+                            console.log('invalid user type', userType);
                         }
-                        else if (userType === 'lecturer') {
-                            window.location.href = 'lecturer-dashboard.html'
-                        }
-                        else {
-                            console.log('invalid user types')
-                            console.log(userType)
-                            console.log(userData)
-                        }
+                    } else {
+                        console.log('Error: no tokens');
                     }
-                    else {
-                        console.log('Error: not tokens')
-                    }
+                } else {
+                    message.textContent = data.error || 'An error occurred';
+                    console.log('Error:', data.error || data);
                 }
-
-                else {
-                    message.textContent = data.error
-                    console.log('Error:', data.error)
-                }
+            } catch (error) {
+                console.log('Network error:', error);
+                message.textContent = 'An error occurred. Please try again.';
+            } finally {
+                this.textContent = originalText;
+                this.classList.remove('pulse');
             }
-            catch (error) {
-
-                console.log(error)
-            }
-
-
         });
 
         // Form submission - Lecturer
         document.getElementById('lecturerSignupButton').addEventListener('click', async function (e) {
             e.preventDefault();
 
-            
-            const lecturerUsername = document.getElementById('lecturerUsername').value
+            const lecturerUsername = document.getElementById('lecturerUsername').value;
             const lecturerFirstName = document.getElementById('lecturerFirstName').value;
             const lecturerLastName = document.getElementById('lecturerLastName').value;
             const lecturerEmail = document.getElementById('lecturerEmail').value;
             const lecturerPhone = document.getElementById('lecturerPhone').value;
             const lecturerMatriculate = document.getElementById('lecturerStaffId').value;
-            
-            const message = document.getElementById('message')
+
+            const message = document.getElementById('message');
 
             const password = document.getElementById('lecturerPassword').value;
             const confirmPassword = document.getElementById('lecturerConfirmPassword').value;
@@ -890,61 +895,71 @@
             const originalText = this.textContent;
             this.textContent = 'Creating Account...';
 
+            // Generate or retrieve persistent device ID
+            let deviceId = localStorage.getItem('device_id');
+            if (!deviceId) {
+                deviceId = crypto.randomUUID();
+                localStorage.setItem('device_id', deviceId);
+            }
+
             try {
-                const respone = await fetch(`${url}/Attendee/register/lecturer/`, {
+                const response = await fetch(`${url}/Attendee/register/lecturer/`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
-                        'username': lecturerUsername, 'first_name': lecturerFirstName, 'last_name': lecturerLastName,
-                        'email': lecturerEmail, 'phone': lecturerPhone, 'password': password, 'matricule_number': lecturerMatriculate
+                        username: lecturerUsername,
+                        first_name: lecturerFirstName,
+                        last_name: lecturerLastName,
+                        email: lecturerEmail,
+                        phone: lecturerPhone,
+                        password: password,
+                        matricule_number: lecturerMatriculate,
+                        device_id: deviceId
                     })
-                })
-                const data = await respone.json()
-                console.log(data)
-                if (respone.ok) {
+                });
 
+                const data = await response.json();
+                console.log(data);
+
+                if (response.ok) {
                     if (data.tokens.access && data.tokens.refresh) {
-                        localStorage.setItem('access_token', data.tokens.access)
-                        document.cookie = `refresh_token=${data.tokens.refresh}: HttpOnly; Secure`;
-                        console.log(data.tokens.access)
-                        console.log(data.tokens.refresh)
-                        message.textContent = data.message
-                        message.style.color = '#10b981'
+                        localStorage.setItem('access_token', data.tokens.access);
+                        document.cookie = `refresh_token=${data.tokens.refresh}; HttpOnly; Secure`;
+                        message.textContent = data.message;
+                        message.style.color = '#10b981';
+
                         const users = await fetch(`${url}/Attendee/user/`, {
                             method: 'GET',
                             headers: {
                                 'Authorization': `Bearer ${data.tokens.access}`
                             }
                         });
+
                         const userData = await users.json();
                         const userType = userData.user[0].user_type;
+
                         if (userType === 'student') {
-                            window.location.href = 'student-dashboard.html'
+                            window.location.href = 'student-dashboard.html';
+                        } else if (userType === 'lecturer') {
+                            window.location.href = 'lecturer-dashboard.html';
+                        } else {
+                            console.log('Invalid user type', userType);
                         }
-                        else if (userType === 'lecturer') {
-                            window.location.href = 'lecturer-dashboard.html'
-                        }
-                        else {
-                            console.log('invalid user types')
-                            console.log(userType)
-                            console.log(userData)
-                        }
+                    } else {
+                        console.log('Error: no tokens returned');
                     }
-                    else {
-                        console.log('Error: not tokens')
-                    }
+                } else {
+                    message.textContent = data.error || 'An error occurred';
+                    console.log('Error:', data.error || data);
                 }
-
-                else {
-                    message.textContent = data.error
-                    console.log('Error:', data.error)
-                }
-            }
-            catch (error) {
-
-                console.log(error)
+            } catch (error) {
+                console.log('Network error:', error);
+                message.textContent = 'An error occurred. Please try again.';
+            } finally {
+                this.textContent = originalText;
+                this.classList.remove('pulse');
             }
         });
 
