@@ -1,0 +1,1618 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Dashboard | Attendee</title>
+    <style>
+        /* Reset and Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f3f4f6;
+            color: #1f2937;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: 260px;
+            background-color: #ffffff;
+            border-right: 1px solid #e5e7eb;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-header {
+            padding: 16px;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+        }
+
+        .logo {
+            background-color: #4f46e5;
+            color: white;
+            padding: 8px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .logo-text {
+            margin-left: 12px;
+        }
+
+        .logo-text h1 {
+            font-size: 18px;
+            font-weight: bold;
+            color: #111827;
+        }
+
+        .logo-text p {
+            font-size: 12px;
+            color: #6b7280;
+        }
+
+        .sidebar-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+        }
+
+        .menu-section {
+            margin-bottom: 24px;
+        }
+
+        .menu-title {
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: #6b7280;
+            letter-spacing: 0.05em;
+            margin-bottom: 8px;
+        }
+
+        .menu-items {
+            list-style: none;
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 4px;
+            color: #4b5563;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .menu-item:hover {
+            background-color: #e0e7ff;
+        }
+
+        .menu-item.active {
+            background-color: #4f46e5;
+            color: white;
+        }
+
+        .menu-item-icon {
+            margin-right: 12px;
+        }
+
+        .sidebar-footer {
+            padding: 16px;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #4f46e5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .user-info {
+            margin-left: 12px;
+        }
+
+        .user-name {
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .user-id {
+            font-size: 12px;
+            color: #6b7280;
+        }
+
+        .sign-out-btn {
+            margin-top: 16px;
+            width: 100%;
+            padding: 8px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #f3f4f6;
+            border: none;
+            border-radius: 8px;
+            color: #4b5563;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .sign-out-btn:hover {
+            background-color: #e5e7eb;
+        }
+
+        .sign-out-icon {
+            margin-right: 8px;
+        }
+
+        /* Main Content Styles */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .header {
+            background-color: #ffffff;
+            border-bottom: 1px solid #e5e7eb;
+            padding: 12px 24px;
+            display: flex;
+            height: 100px;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .header-title {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+        }
+
+        .notification-btn {
+            position: relative;
+            background: none;
+            border: none;
+            color: #6b7280;
+            cursor: pointer;
+            margin-right: 16px;
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 8px;
+            height: 8px;
+            background-color: #ef4444;
+            border-radius: 50%;
+        }
+
+        .divider {
+            width: 1px;
+            height: 24px;
+            background-color: #e5e7eb;
+            margin: 0 16px;
+        }
+
+        .current-date {
+            font-size: 14px;
+            color: #6b7280;
+        }
+
+        /* Main Content Area */
+        .content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px;
+        }
+
+        /* Welcome Banner */
+        .welcome-banner {
+            background: linear-gradient(to right, #4f46e5, #4338ca);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        .welcome-text h2 {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .welcome-text p {
+            opacity: 0.9;
+        }
+
+        .mark-attendance-btn {
+            background-color: white;
+            color: #4f46e5;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .mark-attendance-btn:hover {
+            background-color: rgba(255, 255, 255, 0.9);
+        }
+
+        .mark-attendance-icon {
+            margin-right: 8px;
+        }
+
+        /* card */
+
+
+
+
+        /* Grid Layout */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        @media (max-width: 1200px) {
+            .grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Card Styles */
+        .card {
+            background-color: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+
+        }
+
+        .card-body {
+            max-height: 80vh;
+            height: 30vh;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+
+        .card-title {
+            font-size: 14px;
+            font-weight: 500;
+            color: #6b7280;
+        }
+
+        .badge {
+            font-size: 12px;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 9999px;
+        }
+
+        .badge-success {
+            background-color: rgba(16, 185, 129, 0.1);
+            color: #10b981;
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+
+        .badge-danger {
+            background-color: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
+
+        .badge-green {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+
+        .badge-blue {
+            background-color: #dbeafe;
+            color: #1e40af;
+        }
+
+        .card-value {
+            display: flex;
+            align-items: center;
+        }
+
+        .value {
+            font-size: 30px;
+            font-weight: bold;
+        }
+
+        .trend {
+            margin-left: 8px;
+            font-size: 14px;
+            color: #10b981;
+            display: flex;
+            align-items: center;
+        }
+
+        .trend-icon {
+            margin-right: 2px;
+        }
+
+        /* Two Column Layout */
+        .two-column {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 24px;
+        }
+
+        @media (max-width: 1024px) {
+            .two-column {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Course Attendance */
+        .attendance-bar {
+            height: 8px;
+            border-radius: 4px;
+            background-color: #e5e7eb;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+
+        .attendance-progress {
+            height: 100%;
+            border-radius: 4px;
+        }
+
+        .progress-green {
+            background-color: #10b981;
+        }
+
+        .progress-yellow {
+            background-color: #f59e0b;
+        }
+
+        .course-item {
+            margin-bottom: 20px;
+        }
+
+        .course-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .course-name {
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .course-instructor {
+            font-size: 12px;
+            color: #6b7280;
+        }
+
+        .attendance-percent {
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        /* Table Styles */
+        /* Tables */
+        .table-container {
+            overflow: scroll;
+            height: 100%;
+            border-radius: 8px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+
+        th {
+            background-color: #f8fafc;
+            text-align: left;
+            padding: 14px 20px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        td {
+            padding: 16px 20px;
+            font-size: 14px;
+            color: #475569;
+            border-bottom: 1px solid #f1f5f9;
+            vertical-align: middle;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover td {
+            background-color: #f8fafc;
+        }
+
+        .status-badge {
+            font-size: 12px;
+            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: 9999px;
+            display: inline-block;
+        }
+
+        .status-present {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+
+        .status-absent {
+            background-color: #fee2e2;
+            color: #b91c1c;
+        }
+
+        /* QR Code Scanner */
+        .qr-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .qr-placeholder {
+            background-color: #f3f4f6;
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            width: 100%;
+            max-width: 240px;
+        }
+
+        .qr-box {
+            border: 2px dashed #d1d5db;
+            border-radius: 8px;
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 200px;
+            text-align: center;
+        }
+
+        .qr-icon {
+            color: #9ca3af;
+            margin-bottom: 8px;
+        }
+
+        .qr-text {
+            font-size: 14px;
+            color: #6b7280;
+        }
+
+        .scan-btn {
+            width: 100%;
+            background-color: #4f46e5;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .scan-btn:hover {
+            background-color: #4338ca;
+        }
+
+        /* Upcoming Classes */
+        .class-item {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+        }
+
+        .class-cs {
+            background-color: #eef2ff;
+        }
+
+        .class-math {
+            background-color: #dbeafe;
+        }
+
+        .class-physics {
+            background-color: #d1fae5;
+        }
+
+        .class-icon {
+            background-color: rgba(255, 255, 255, 0.5);
+            border-radius: 8px;
+            padding: 8px;
+            margin-right: 16px;
+        }
+
+        .class-icon-cs {
+            color: #4f46e5;
+        }
+
+        .class-icon-math {
+            color: #2563eb;
+        }
+
+        .class-icon-physics {
+            color: #059669;
+        }
+
+        .class-details h3 {
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .class-details p {
+            font-size: 12px;
+            color: #6b7280;
+        }
+
+        /* Notifications */
+        .notification-item {
+            border-left-width: 4px;
+            padding-left: 12px;
+            padding-top: 8px;
+            padding-bottom: 8px;
+            margin-bottom: 16px;
+        }
+
+        .notification-warning {
+            border-left-color: #ef4444;
+        }
+
+        .notification-info {
+            border-left-color: #4f46e5;
+        }
+
+        .notification-success {
+            border-left-color: #10b981;
+        }
+
+        .notification-title {
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .notification-message {
+            font-size: 12px;
+            color: #6b7280;
+        }
+
+        .notification-time {
+            font-size: 12px;
+            color: #9ca3af;
+            margin-top: 4px;
+        }
+
+        img {
+            height: 50px;
+            width: 50px;
+            border-radius: 50px;
+        }
+
+        /* Modal */
+        .modal-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            padding: 10px;
+            background-color: rgba(15, 23, 42, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+            backdrop-filter: blur(4px);
+        }
+
+        .modal-backdrop.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal {
+            background-color: #fff;
+            border-radius: 16px;
+            max-height: 80vh;
+            height: fit-content;
+            overflow: scroll;
+            width: 100%;
+            max-width: 500px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            transform: translateY(20px);
+            opacity: 0;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+            overflow-y: scroll;
+            scroll-behavior: smooth;
+        }
+
+        .modal-backdrop.active .modal {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .modal-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #f8fafc;
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #64748b;
+            font-size: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            transition: all 0.2s ease;
+        }
+
+        .modal-close:hover {
+            background-color: #e2e8f0;
+            color: #1e293b;
+        }
+
+        .modal-body {
+            padding: 24px;
+
+        }
+
+        .modal-footer {
+            padding: 16px 24px;
+            border-top: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            background-color: #f8fafc;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            color: #fff;
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.2);
+        }
+
+        .btn-primary:hover {
+            box-shadow: 0 6px 16px rgba(79, 70, 229, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: #fff;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+        }
+
+        .btn-success:hover {
+            box-shadow: 0 6px 16px rgba(16, 185, 129, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background-color: #f1f5f9;
+            color: #475569;
+        }
+
+        .btn-secondary:hover {
+            background-color: #e2e8f0;
+        }
+
+        .btn {
+            padding: 10px 18px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        .menu-logo {
+            font-size: 30px;
+            display: none;
+
+        }
+
+        .menu-logo:hover {
+            color: #1e40af;
+            cursor: pointer;
+        }
+
+        /* Responsive Adjustments */
+        @media (max-width: 768px) {
+            .header {
+                position: fixed;
+                z-index: 999;
+                width: 100%;
+            }
+
+            .content {
+                margin-top: 100px;
+            }
+
+            body {
+                flex-direction: column;
+                overflow: auto;
+                height: auto;
+            }
+
+            .card {
+                margin-bottom: 10px;
+            }
+
+            .sidebar {
+                width: 100%;
+                height: 100%;
+                display: block;
+                position: fixed;
+                z-index: 9999;
+                top: -1500px;
+                transition: ease-in-out 0.7s;
+
+                overflow: scroll;
+            }
+
+            .sidebar.active {
+                top: 1px
+            }
+
+            .main-content {
+                height: auto;
+            }
+
+            .content {
+                padding: 16px;
+            }
+
+            .welcome-banner {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .mark-attendance-btn {
+                margin-top: 16px;
+            }
+
+            .grid {
+                grid-template-columns: 1fr;
+            }
+
+            .two-column {
+                display: block;
+                margin-bottom: 20px;
+
+            }
+
+            .menu-logo {
+                display: block;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="logo-container">
+                <div class="logo">
+                    <img src="assets/Attendee logo.jpg" alt="attendee logo">
+                </div>
+                <div class="logo-text">
+                    <h1>Attendee</h1>
+                    <p>Attendance System</p>
+                </div>
+
+            </div>
+            <div class="menu-logo" id="side-logo">&#9776;</div>
+        </div>
+        <div class="sidebar-content">
+            <div class="menu-section">
+                <h2 class="menu-title">Main Menu</h2>
+                <ul class="menu-items">
+                    <li class="menu-item active" onclick="window.location.href='student-dashboard.html'">
+                        <span class="menu-item-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                                <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                            </svg>
+                        </span>
+                        Dashboard
+                    </li>
+                    <li class="menu-item" >
+                        <span class="menu-item-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="12" cy="7" r="4"></circle>
+                            </svg>
+                        </span>
+                        My Profile
+                    </li>
+                    <li class="menu-item">
+                        <span class="menu-item-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <path
+                                    d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253">
+                                </path>
+                            </svg>
+                        </span>
+                        My Courses
+                    </li>
+                    <li class="menu-item">
+                        <span class="menu-item-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                <line x1="16" y1="2" x2="16" y2="6"></line>
+                                <line x1="8" y1="2" x2="8" y2="6"></line>
+                                <line x1="3" y1="10" x2="21" y2="10"></line>
+                            </svg>
+                        </span>
+                        Schedule
+                    </li>
+                    <li class="menu-item">
+                        <span class="menu-item-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                <polyline points="14 2 14 8 20 8"></polyline>
+                                <line x1="16" y1="13" x2="8" y2="13"></line>
+                                <line x1="16" y1="17" x2="8" y2="17"></line>
+                                <polyline points="10 9 9 9 8 9"></polyline>
+                            </svg>
+                        </span>
+                        Attendance Records
+                    </li>
+                    <li class="menu-item">
+                        <span class="menu-item-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                            </svg>
+                        </span>
+                        Notifications
+                    </li>
+                </ul>
+            </div>
+            <div class="menu-section">
+                <h2 class="menu-title">Support</h2>
+                <ul class="menu-items">
+                    <li class="menu-item">
+                        <span class="menu-item-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                                <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                            </svg>
+                        </span>
+                        Help Center
+                    </li>
+                    <li class="menu-item">
+                        <span class="menu-item-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="3"></circle>
+                                <path
+                                    d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z">
+                                </path>
+                            </svg>
+                        </span>
+                        Settings
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="sidebar-footer">
+            <div class="user-profile">
+                <div class="user-avatar" id="user-name-abb">AJ</div>
+                <div class="user-info">
+                    <p class="user-name" id="user-name">Alex Johnson</p>
+                    <p class="user-id" id="user-id">Student ID: S12345</p>
+                </div>
+            </div>
+            <button class="sign-out-btn">
+                <span class="sign-out-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                        <polyline points="16 17 21 12 16 7"></polyline>
+                        <line x1="21" y1="12" x2="9" y2="12"></line>
+                    </svg>
+                </span>
+                Sign Out
+            </button>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Header -->
+        <header class="header">
+            <h1 class="header-title">Student Dashboard <br>
+                <div class="current-date" id="current-date"></div>
+            </h1>
+
+            <div class="header-actions">
+
+                <div class="divider"></div>
+                <div class="menu-logo" id="menu-logo">&#9776;</div>
+
+            </div>
+        </header>
+
+        <!-- Main Content Area -->
+        <div class="content">
+            <!-- Welcome Banner -->
+            <div class="welcome-banner">
+                <div class="welcome-text">
+                    <h2 id="username"></h2>
+                    <p>Track your attendance and stay on top of your classes.</p>
+                </div>
+                <button class="mark-attendance-btn" id="add-session-btn">
+                    <span class="mark-attendance-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                        </svg>
+                    </span>
+                    Mark Attendance
+                </button>
+            </div>
+
+            <!-- Stats Cards -->
+            <div class="grid">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Overall Attendance</h3>
+                        <span class="badge badge-green" id="att-status">Good</span>
+                    </div>
+                    <div class="card-value">
+                        <div class="value" id="att-value"></div>
+                        <div class="trend" id="att-trend">
+                            <span class="trend-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round">
+                                    <polyline points="18 15 12 9 6 15"></polyline>
+                                </svg>
+                            </span>
+
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Classes Attended</h3>
+                        <span class="badge badge-blue">This Month</span>
+                    </div>
+                    <div class="card-value">
+                        <div class="value" id="class-att"></div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Courses Enrolled</h3>
+                    </div>
+                    <div class="card-value">
+                        <div class="value"></div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title" id="std-school"></h3>
+                    </div>
+                    <div>
+                        <div class="value" style="font-size: 20px;" id="std-department"></div>
+                        <div style="font-size: 14px; color: #6b7280; margin-top: 4px;" id="std-id"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Two Column Layout -->
+            <div class="two-column">
+                <!-- Left Column -->
+                <div>
+                    <!-- Course Attendance -->
+                    <div class="card" style="margin-bottom: 24px;">
+                        <div
+                            style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                            <h2 style="font-size: 18px; font-weight: bold;">Course Attendance</h2>
+                            <button
+                                style="font-size: 14px; color: #4f46e5; font-weight: 500; background: none; border: none; cursor: pointer;">View
+                                All</button>
+                        </div>
+                        <div id="course">
+
+
+                        </div>
+                    </div>
+
+                    <!-- Recent Attendance -->
+                    <div class="card">
+                        <h2 style="font-size: 18px; font-weight: bold; margin-bottom: 24px;">Recent Attendance</h2>
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Course</th>
+                                        <th>Time</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="recent-att">
+
+
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column -->
+                <div>
+                    <!-- QR Code Scanner -->
+                    <div class="card" style="margin-bottom: 24px;">
+                        <h2 style="font-size: 18px; font-weight: bold; margin-bottom: 16px;">Quick Attendance</h2>
+                        <div class="qr-container">
+                            <div class="qr-placeholder">
+                                <div class="qr-box">
+                                    <div>
+                                        <div id="qr-code-display" style="margin: 20px 0;"></div>
+
+                                        <p class="qr-text">Scan QR code to mark attendance</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <button class="scan-btn" id="scan-qr-btn">Scan QR Code</button>
+                        </div>
+                    </div>
+
+                    <!-- Upcoming Classes -->
+                    <div class="card" style="margin-bottom: 24px;">
+                        <h2 style="font-size: 18px; font-weight: bold; margin-bottom: 16px;">Upcoming Classes</h2>
+                        <div>
+                            <div class="class-item class-cs">
+                                <div class="class-icon class-icon-cs">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                        stroke-linejoin="round">
+                                        <path
+                                            d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253">
+                                        </path>
+                                    </svg>
+                                </div>
+                                <div class="class-details">
+                                    <h3>Computer Science</h3>
+                                    <p>Today, 2:30 PM • Room 302</p>
+                                </div>
+                            </div>
+                            <div class="class-item class-math">
+                                <div class="class-icon class-icon-math">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                        stroke-linejoin="round">
+                                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                                        <line x1="8" y1="12" x2="16" y2="12"></line>
+                                        <line x1="12" y1="8" x2="12" y2="16"></line>
+                                    </svg>
+                                </div>
+                                <div class="class-details">
+                                    <h3>Mathematics</h3>
+                                    <p>Today, 4:00 PM • Room 201</p>
+                                </div>
+                            </div>
+                            <div class="class-item class-physics">
+                                <div class="class-icon class-icon-physics">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                        stroke-linejoin="round">
+                                        <circle cx="12" cy="12" r="10"></circle>
+                                        <path
+                                            d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z">
+                                        </path>
+                                        <line x1="2" y1="12" x2="22" y2="12"></line>
+                                    </svg>
+                                </div>
+                                <div class="class-details">
+                                    <h3>Physics Lab</h3>
+                                    <p>Tomorrow, 10:00 AM • Lab 105</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Notifications -->
+                    <div class="card">
+                        <h2 style="font-size: 18px; font-weight: bold; margin-bottom: 16px;">Notifications</h2>
+                        <div>
+                            <div class="notification-item notification-warning">
+                                <p class="notification-title">Attendance Warning</p>
+                                <p class="notification-message">Your attendance in Physics 101 is below 80%</p>
+                                <p class="notification-time">2 hours ago</p>
+                            </div>
+                            <div class="notification-item notification-info">
+                                <p class="notification-title">Class Rescheduled</p>
+                                <p class="notification-message">Mathematics class moved to Room 201</p>
+                                <p class="notification-time">Yesterday</p>
+                            </div>
+                            <div class="notification-item notification-success">
+                                <p class="notification-title">Perfect Attendance</p>
+                                <p class="notification-message">You've achieved 100% attendance in English Literature
+                                </p>
+                                <p class="notification-time">2 days ago</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+
+    </div>
+
+    <div class="modal-backdrop" id="add-session-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">Mark Attendance</h3>
+                <button class="modal-close" id="close-modal-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="card-body">
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Course</th>
+                                    <th>Course Code</th>
+                                    <th>Date</th>
+                                    <th>Hall</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="mark-att">
+                                <!-- Will be populated by JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" id="cancel-btn">Close</button>
+
+            </div>
+        </div>
+    </div>
+
+    <script>
+
+        const addSessionBtn = document.getElementById('add-session-btn');
+        const addSessionModal = document.getElementById('add-session-modal');
+        const closeModalBtn = document.getElementById('close-modal-btn');
+        const cancelBtn = document.getElementById('cancel-btn');
+        const menuLogo = document.getElementById('menu-logo');
+        const SideLogo = document.getElementById('side-logo');
+        const sideBar = document.getElementById('sidebar');
+
+        // Toggle sidebar
+        menuLogo.addEventListener('click', () => {
+            sideBar.style.top = '1px';
+        });
+
+        SideLogo.addEventListener('click', () => {
+            sideBar.style.top = '-1500px';
+        });
+
+        // Modal open/close handlers
+        addSessionBtn.addEventListener('click', () => addSessionModal.classList.add('active'));
+        closeModalBtn.addEventListener('click', () => addSessionModal.classList.remove('active'));
+        cancelBtn.addEventListener('click', () => addSessionModal.classList.remove('active'));
+
+        // Helper functions for attendance UI
+        const get_att_bar = (att) => {
+            if (att <= 25) return 'red';
+            if (att <= 50) return '#f59e0b';
+            if (att <= 75) return 'blue';
+            if (att <= 90) return 'orange';
+            return '#10b981';
+        };
+
+        const get_att_status = (att) => {
+            if (att <= 25) return 'BAD';
+            if (att <= 50) return 'POOR';
+            if (att <= 75) return 'FAIR';
+            if (att <= 90) return 'GOOD';
+            return 'Excellent';
+        };
+
+        const get_name_abb = (fname, lname) => {
+            if (!fname || !lname) return 'AU';
+            return fname[0].toUpperCase() + lname[0].toUpperCase();
+        };
+
+        // Cached DOM references for performance
+        const username = document.getElementById('username');
+        const course = document.getElementById('course');
+        const listToMarkAtt = document.getElementById('mark-att');
+        const AttValue = document.getElementById('att-value');
+        const AttTrend = document.getElementById('att-trend');
+        const classAtt = document.getElementById('class-att');
+        const AttStatus = document.getElementById('att-status');
+        const RecentAtt = document.getElementById('recent-att');
+
+        // Store fetched data globally for real-time updates without re-fetching everything
+        let globalData = null;
+        let token = null;
+
+        // Mark Attendance Function (reusable)
+        const MarkAttendance = async (id) => {
+            navigator.geolocation.getCurrentPosition(async (position) => {
+                const studentLatitude = position.coords.latitude;
+                const studentLongitude = position.coords.longitude;
+
+                try {
+                    const response = await fetch('http://127.0.0.1:8000/Attendee/student/access-session/', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify({
+                            session_id: id,
+                            student_latitude: studentLatitude,
+                            student_longitude: studentLongitude
+                        })
+                    });
+
+                    const data = await response.json();
+
+                    if (data.access_granted) {
+                        alert("Access granted!");
+
+                        const attendanceResponse = await fetch(`http://127.0.0.1:8000/Attendee/attendance/${id}/`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${token}`
+                            }
+                        });
+
+                        const attendanceData = await attendanceResponse.json();
+                        alert(attendanceData.message);
+
+                        // Instead of full reload, update UI selectively or fetch updated attendance data here:
+                        await fetchAndUpdateAttendanceData();
+
+                        console.log(attendanceData);
+                    } else {
+                        alert("Access denied. You're not within range.");
+                    }
+                } catch (error) {
+                    console.error('Error checking access:', error);
+                }
+            });
+        };
+
+        // Function to attach click event listeners to session buttons efficiently
+        function attachSessionClickListeners() {
+            document.querySelectorAll('.view-session-btn').forEach(btn => {
+                btn.onclick = () => {
+                    const sessionId = parseInt(btn.getAttribute('data-id'));
+                    MarkAttendance(sessionId);
+                };
+            });
+        }
+
+        // Fetch and update attendance data (partial UI refresh)
+        async function fetchAndUpdateAttendanceData() {
+            try {
+                const res = await fetch('http://127.0.0.1:8000/Attendee/student/class-sessions/', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                const data = await res.json();
+                globalData = data; // update global data cache
+
+                // Update UI parts with new data
+                document.getElementById('user-id').textContent = `Student ID: ${data.matricule}`;
+                AttValue.textContent = `${data.attendance_percentage}%`;
+                AttStatus.textContent = get_att_status(data.attendance_percentage);
+                AttStatus.style.color = get_att_bar(data.attendance_percentage);
+                AttTrend.textContent = `^${data.attendance_present}%`;
+                classAtt.textContent = `${data.attendance_present}/${data.class_sessions_count}`;
+                document.getElementById('std-school').textContent = data.school;
+                document.getElementById('std-department').textContent = data.department;
+                document.getElementById('std-id').textContent = data.matricule;
+
+                // Update courses list (clear and re-add)
+                course.innerHTML = '';
+                data.results.forEach(list => {
+                    const courseList = document.createElement('div');
+                    courseList.className = 'course-item';
+                    courseList.innerHTML = `
+          <div class="course-header">
+            <div>
+              <h3 class="course-name">${list.course}</h3>
+              <p class="course-instructor">Prof. ${list.lecturer}</p>
+            </div>
+            <div class="attendance-percent">${list.attendance}%</div>
+          </div>
+          <div class="attendance-bar">
+            <div class="attendance-progress progress-green" style="width: ${list.attendance}%; background-color:${get_att_bar(list.attendance)}"></div>
+          </div>
+        `;
+                    course.appendChild(courseList);
+                });
+
+                // Update recent attendance
+                RecentAtt.innerHTML = '';
+                data.attendance.forEach(attendance => {
+                    const statusClass = attendance.status ? 'badge-success' : 'badge-danger';
+                    const statusText = attendance.status ? 'Present' : 'Absent';
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+          <td>${new Date(attendance.date).toLocaleString()}</td>
+          <td>${attendance.class_session}</td>
+          <td>${attendance.hall}</td>
+          <td><span class="badge ${statusClass}">${statusText}</span></td>
+        `;
+                    RecentAtt.appendChild(row);
+                });
+
+                // Update sessions to mark attendance
+                listToMarkAtt.innerHTML = '';
+                if (data.class_session_att.length === 0) {
+                    listToMarkAtt.innerHTML = '<p>No Class Session at the moment...</p>';
+                } else {
+                    data.class_session_att.forEach(session => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+            <td>${session.course}</td>
+            <td>${session.code}</td>
+            <td>${new Date(session.date).toLocaleString()}</td>
+            <td>${session.hall}</td>
+            <td>
+              <a class="action-link view-session-btn" data-id="${session.id}">
+                <button class="mark-attendance-btn">
+                  <span class="mark-attendance-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                      <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                    </svg>
+                  </span>
+                  Attend
+                </button>
+              </a>
+            </td>
+          `;
+                        listToMarkAtt.appendChild(row);
+                    });
+                }
+                attachSessionClickListeners();
+            } catch (error) {
+                console.error('Error fetching attendance data:', error);
+            }
+        }
+
+        // On window load, setup initial UI and fetch user data & attendance
+        window.addEventListener('load', async () => {
+            token = localStorage.getItem('access_token');
+            if (!token) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            try {
+                // Fetch user data
+                const users = await fetch('http://127.0.0.1:8000/Attendee/user/', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                const userData = await users.json();
+                const firstName = userData.user[0].first_name;
+                const lastName = userData.user[0].last_name;
+                const userType = userData.user[0].user_type;
+
+                if (userType === 'lecturer') {
+                    window.location.href = 'lecturer-dashboard.html';
+                    return;
+                }
+
+                username.textContent = `Welcome Back, ${firstName}`;
+                document.getElementById('user-name').textContent = `${firstName} ${lastName}`;
+                document.getElementById('user-name-abb').textContent = get_name_abb(firstName, lastName);
+
+                // Fetch & render attendance data for the first time
+                await fetchAndUpdateAttendanceData();
+
+                console.log(userData);
+            } catch (error) {
+                console.error('Error fetching user data:', error);
+            }
+        });
+
+        // Current date display
+        function updateCurrentDate() {
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            const today = new Date();
+            document.getElementById('current-date').textContent = today.toLocaleDateString('en-US', options);
+        }
+        updateCurrentDate();
+
+        // Menu item click handler
+        document.querySelectorAll('.menu-item').forEach(item => {
+            item.addEventListener('click', function () {
+                document.querySelectorAll('.menu-item').forEach(i => i.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        // Scan QR code button
+        document.getElementById('scan-qr-btn').addEventListener('click', () => {
+            
+        });
+
+        // Sign out button
+        document.querySelector('.sign-out-btn').addEventListener('click', async () => {
+            try {
+                localStorage.removeItem('access_token');
+                const cookieMatch = document.cookie.match(/refresh_token=([^;]*)/);
+                if (cookieMatch && cookieMatch[1]) {
+                    const refreshToken = cookieMatch[1];
+                    await fetch('http://127.0.0.1:8000/Attendee/logout/', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ refresh: refreshToken })
+                    });
+                }
+                document.cookie = 'refresh_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC;';
+                window.location.href = 'login.html';
+            } catch (error) {
+                console.error(error);
+            }
+        });
+
+        // Card hover effect
+        document.querySelectorAll('.card').forEach(card => {
+            card.addEventListener('mouseenter', () => {
+                card.style.transform = 'translateY(-5px)';
+                card.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)';
+            });
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = 'translateY(0)';
+                card.style.boxShadow = '0 1px 3px rgba(0, 0, 0, 0.1)';
+            });
+        });
+
+        
+
+
+        setInterval(fetchAndUpdateAttendanceData, 60000);
+
+        
+
+    </script>
+
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+</body>
+
+</html>

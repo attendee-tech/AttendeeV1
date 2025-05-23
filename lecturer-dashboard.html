@@ -1,0 +1,1814 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lecturer Dashboard | Attendee</title>
+    <style>
+        /* Reset and Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f0f4f8;
+            color: #334155;
+            line-height: 1.6;
+        }
+
+        /* Layout */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        header {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            box-shadow: 0 4px 20px rgba(79, 70, 229, 0.2);
+            padding: 15px 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            color: white;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+        }
+
+        .logo-icon {
+            width: 42px;
+            height: 42px;
+            background-color: rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .logo-icon svg {
+            width: 24px;
+            height: 24px;
+            fill: #fff;
+        }
+
+        .logo h1 {
+            font-size: 22px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 8px 16px;
+            border-radius: 50px;
+            backdrop-filter: blur(5px);
+        }
+
+        .user-details {
+            text-align: right;
+            margin-right: 15px;
+        }
+
+        .user-name {
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .user-role {
+            font-size: 13px;
+            opacity: 0.8;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #f9a8d4 0%, #c084fc 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-weight: 600;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Dashboard Grid */
+        .dashboard {
+            padding: 30px 0;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 24px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, #4f46e5, #7c3aed);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-card:hover::before {
+            opacity: 1;
+        }
+
+        .stat-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .icon-sessions {
+            background: linear-gradient(135deg, #c4b5fd 0%, #8b5cf6 100%);
+            color: #ffffff;
+        }
+
+        .icon-students {
+            background: linear-gradient(135deg, #6ee7b7 0%, #10b981 100%);
+            color: #ffffff;
+        }
+
+        .icon-attendance {
+            background: linear-gradient(135deg, #fcd34d 0%, #f59e0b 100%);
+            color: #ffffff;
+        }
+
+        .stat-title {
+            font-size: 14px;
+            color: #64748b;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: #1e293b;
+            margin-top: 5px;
+        }
+
+        /* Main Content Grid */
+        .content-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 24px;
+            margin-bottom: 30px;
+        }
+
+        @media (max-width: 768px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background-color: #fff;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            position: relative;
+            overflow: scroll;
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            max-height: 700px;
+
+        }
+
+        .card-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid #f1f5f9;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #ffffff;
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        .card-body {
+            padding: 24px;
+
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 10px 18px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            color: #fff;
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.2);
+        }
+
+        .btn-primary:hover {
+            box-shadow: 0 6px 16px rgba(79, 70, 229, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: #fff;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+        }
+
+        .btn-success:hover {
+            box-shadow: 0 6px 16px rgba(16, 185, 129, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background-color: #f1f5f9;
+            color: #475569;
+        }
+
+        .btn-secondary:hover {
+            background-color: #e2e8f0;
+        }
+
+        /* Tables */
+        .table-container {
+            overflow-x: auto;
+            border-radius: 8px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+
+        th {
+            background-color: #f8fafc;
+            text-align: left;
+            padding: 14px 20px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        td {
+            padding: 16px 20px;
+            font-size: 14px;
+            color: #475569;
+            border-bottom: 1px solid #f1f5f9;
+            vertical-align: middle;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover td {
+            background-color: #f8fafc;
+        }
+
+        /* Progress Bar */
+        .progress-container {
+            width: 100%;
+            background-color: #e2e8f0;
+            border-radius: 9999px;
+            height: 8px;
+            overflow: hidden;
+            margin-right: 10px;
+        }
+
+        .progress-bar {
+            height: 100%;
+            border-radius: 9999px;
+
+            transition: width 0.5s ease;
+        }
+
+        .progress-wrapper {
+            display: flex;
+            align-items: center;
+            width: 100%;
+        }
+
+        .progress-text {
+            font-size: 14px;
+            color: #64748b;
+            white-space: nowrap;
+            font-weight: 500;
+        }
+
+        /* Chart */
+        .chart-container {
+            height: 300px;
+            position: relative;
+
+            padding: 20px;
+            align-items: center;
+
+
+        }
+
+        .chart-bar {
+            position: absolute;
+            display: block;
+            bottom: 30px;
+            width: 60px;
+            background: linear-gradient(180deg, #4f46e5 0%, #7c3aed 100%);
+            border-radius: 8px 8px 0 0;
+            transition: height 1s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.2);
+        }
+
+        .chart-label {
+            position: absolute;
+            bottom: -20px;
+            width: 60px;
+            text-align: center;
+            font-size: 12px;
+            color: #64748b;
+            font-weight: 500;
+        }
+
+        /* Filter */
+        .filter-container {
+            margin-bottom: 24px;
+            background-color: #f8fafc;
+            padding: 16px;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .filter-label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #475569;
+        }
+
+        .filter-select {
+            width: 100%;
+            max-width: 300px;
+            padding: 10px 14px;
+            border-radius: 8px;
+            border: 1px solid #cbd5e1;
+            background-color: #fff;
+            font-size: 14px;
+            color: #475569;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+            transition: all 0.2s ease;
+        }
+
+        .filter-select:focus {
+            outline: none;
+            border-color: #7c3aed;
+            box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+        }
+
+        /* Status Badge */
+        .badge {
+            padding: 4px 10px;
+            border-radius: 9999px;
+            font-size: 12px;
+            font-weight: 500;
+            display: inline-block;
+        }
+
+        .badge-success {
+            background-color: rgba(16, 185, 129, 0.1);
+            color: #10b981;
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+
+        .badge-danger {
+            background-color: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
+
+        /* Action Links */
+        .action-link {
+            color: #4f46e5;
+            text-decoration: none;
+            font-weight: 500;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            transition: color 0.2s ease;
+        }
+
+        .action-link:hover {
+            color: #7c3aed;
+        }
+
+        .action-link svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        /* Modal */
+        .modal-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            padding: 10px;
+            background-color: rgba(15, 23, 42, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+            backdrop-filter: blur(4px);
+        }
+
+        .modal-backdrop.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal {
+            background-color: #fff;
+            border-radius: 16px;
+            height: 100%;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            transform: translateY(20px);
+            opacity: 0;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+            overflow-y: scroll;
+            scroll-behavior: smooth;
+        }
+
+        .modal-backdrop.active .modal {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .modal-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #f8fafc;
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #64748b;
+            font-size: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            transition: all 0.2s ease;
+        }
+
+        .modal-close:hover {
+            background-color: #e2e8f0;
+            color: #1e293b;
+        }
+
+        .modal-body {
+            padding: 24px;
+        }
+
+        .modal-footer {
+            padding: 16px 24px;
+            border-top: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            background-color: #f8fafc;
+        }
+
+        /* Form */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #475569;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px 14px;
+            border-radius: 8px;
+            border: 1px solid #cbd5e1;
+            background-color: #fff;
+            font-size: 14px;
+            color: #475569;
+            transition: all 0.2s ease;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #7c3aed;
+            box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        /* View Session Modal */
+        .session-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 24px;
+            background-color: #f8fafc;
+            padding: 16px;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .info-group label {
+            display: block;
+            font-size: 12px;
+            color: #64748b;
+            margin-bottom: 4px;
+            font-weight: 500;
+        }
+
+        .info-group p {
+            font-weight: 600;
+            color: #1e293b;
+            font-size: 15px;
+        }
+
+        .student-list {
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            background-color: #fff;
+        }
+
+        .student-list table {
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        /* Section Headers */
+        .section-header {
+            margin-bottom: 12px;
+            font-size: 14px;
+            color: #64748b;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .section-header svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        /* Attendance Summary */
+        .attendance-summary {
+            margin-bottom: 24px;
+            background-color: #f8fafc;
+            padding: 16px;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .attendance-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .attendance-percentage {
+            font-size: 15px;
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        .attendance-label {
+            font-size: 12px;
+            color: #64748b;
+        }
+
+        .sign-out-btn {
+
+            width: 100px;
+            padding: 8px 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            justify-self: right;
+            background-color: #f3f4f6;
+            border: none;
+            border-radius: 8px;
+            color: #4b5563;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            margin-left: 20px;
+        }
+
+        .sign-out-btn:hover {
+            background-color: #e5e7eb;
+        }
+
+        .sign-out-icon {
+            margin-right: 8px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .session-info {
+                grid-template-columns: 1fr;
+            }
+
+            .logo h1 {
+                display: none;
+            }
+
+            .user-avatar {
+                display: none;
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease forwards;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        img {
+            height: 50px;
+            width: 50px;
+            border-radius: 50px;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <div class="logo-icon">
+                        <div class="school-icon">
+                            <img src="assets/Attendee logo.jpg" alt="">
+                        </div>
+                    </div>
+                    <h1>Attendee Dashboard</h1>
+                </div>
+                <div class="user-info">
+                    <div class="user-details">
+                        <div class="user-name" id="user-name"></div>
+
+                    </div>
+                    <div class="user-avatar" id="user-name-abb"></div>
+                    <button class="sign-out-btn" id="logout">
+                        <span class="sign-out-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                                <polyline points="16 17 21 12 16 7"></polyline>
+                                <line x1="21" y1="12" x2="9" y2="12"></line>
+                            </svg>
+                        </span>
+                        Sign Out
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="dashboard">
+            <!-- Stats Overview -->
+            <div class="stats-grid">
+                <div class="stat-card fade-in">
+                    <div class="stat-header">
+                        <div class="stat-icon icon-sessions">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                <line x1="16" y1="2" x2="16" y2="6"></line>
+                                <line x1="8" y1="2" x2="8" y2="6"></line>
+                                <line x1="3" y1="10" x2="21" y2="10"></line>
+                            </svg>
+                        </div>
+                        <div>
+                            <div class="stat-title">Total Class Sessions</div>
+                        </div>
+                    </div>
+                    <div class="stat-value" id="total-sessions"></div>
+                </div>
+                <div class="stat-card fade-in" style="animation-delay: 0.1s;">
+                    <div class="stat-header">
+                        <div class="stat-icon icon-students">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="9" cy="7" r="4"></circle>
+                                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                            </svg>
+                        </div>
+                        <div>
+                            <div class="stat-title">Total Students</div>
+                        </div>
+                    </div>
+                    <div class="stat-value" id="total-students"></div>
+                </div>
+                <div class="stat-card fade-in" style="animation-delay: 0.2s;">
+                    <div class="stat-header">
+                        <div class="stat-icon icon-attendance">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                            </svg>
+                        </div>
+                        <div>
+                            <div class="stat-title">Average Attendance</div>
+                        </div>
+                    </div>
+                    <div class="stat-value" id="total-percentage"></div>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="content-grid">
+                <div class="card fade-in" style="animation-delay: 0.3s;">
+                    <div class="card-header">
+                        <h2 class="card-title">Recent Class Sessions</h2>
+                        <button class="btn btn-primary" id="add-session-btn">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <line x1="12" y1="5" x2="12" y2="19"></line>
+                                <line x1="5" y1="12" x2="19" y2="12"></line>
+                            </svg>
+                            Add New Session
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Course</th>
+                                        <th>Date</th>
+                                        <th>Hall</th>
+                                        <th>Attendance</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="sessions-table-body">
+                                    <!-- Will be populated by JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="card fade-in" style="animation-delay: 0.4s;">
+                    <div class="card-header">
+                        <h2 class="card-title">Attendance Overview</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container" id="attendance-chart">
+                            <!-- Will be populated by JavaScript -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Attendance Records -->
+            <div class="card fade-in" style="animation-delay: 0.5s;">
+                <div class="card-header">
+                    <h2 class="card-title">Attendance Records</h2>
+                    <button class="btn btn-success" id="download-pdf-btn">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="7 10 12 15 17 10"></polyline>
+                            <line x1="12" y1="15" x2="12" y2="3"></line>
+                        </svg>
+                        Download PDF
+                    </button>
+                </div>
+                <div class="card-body">
+                    <div class="filter-container">
+                        <label for="course-filter" class="filter-label">Filter by Course</label>
+                        <select id="course-filter" class="filter-select">
+                            <option value="all">All Courses</option>
+                            <option value="cs101">CS101: Introduction to Programming</option>
+                            <option value="cs202">CS202: Data Structures</option>
+                            <option value="cs305">CS305: Algorithm Design</option>
+                        </select>
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Student ID</th>
+                                    <th>Student Name</th>
+                                    <th>Course</th>
+                                    <th>Date</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="attendance-table-body">
+                                <!-- Will be populated by JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add New Session Modal -->
+    <div class="modal-backdrop" id="add-session-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">Add New Class Session</h3>
+                <button class="modal-close" id="close-modal-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="add-session-form">
+                    <div class="form-group">
+                        <label for="school" class="form-label">School</label>
+                        <select id="school" name="school" class="form-control" required>
+                            <option value="">Select a school</option>
+
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="department" class="form-label">Department</label>
+                        <select id="department" name="department" class="form-control" required>
+
+
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="course-select" class="form-label">Course</label>
+                        <select id="course-select" name="course" class="form-control" required>
+
+
+                        </select>
+                    </div>
+
+
+                    <div class="form-group">
+                        <label for="start_time" class="form-label">Start Time</label>
+                        <input type="datetime-local" id="start_time" name="start_time" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="end_time" class="form-label">End Time</label>
+                        <input type="datetime-local" id="end_time" name="end_time" class="form-control" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="room" class="form-label">Hall</label>
+                        <input type="text" id="room" name="hall" class="form-control" placeholder="e.g. Room 101"
+                            required>
+                    </div>
+                    <div class="form-group">
+                        <label for="expected-students" class="form-label">Expected Number of Students (optional)</label>
+                        <input type="number" id="expected-students" name="expected-students" min="1"
+                            class="form-control" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="cancel-btn">Cancel</button>
+                <button class="btn btn-primary" id="save-session-btn">Save Session</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- View Session Modal -->
+    <div class="modal-backdrop" id="view-session-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title" id="view-session-title">Session Details</h3>
+                <button class="modal-close" id="close-view-modal-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="section-header">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                        <line x1="16" y1="2" x2="16" y2="6"></line>
+                        <line x1="8" y1="2" x2="8" y2="6"></line>
+                        <line x1="3" y1="10" x2="21" y2="10"></line>
+                    </svg>
+                    Session Information
+                </div>
+                <div class="session-info">
+                    <div class="info-group">
+                        <label>Course</label>
+                        <p id="view-course"></p>
+                    </div>
+                    <div class="info-group">
+                        <label>Start Time</label>
+                        <p id="view-date"></p>
+                    </div>
+                    <div class="info-group">
+                        <label>End Time</label>
+                        <p id="view-time"></p>
+                    </div>
+                    <div class="info-group">
+                        <label>Room</label>
+                        <p id="view-room"></p>
+                    </div>
+                </div>
+
+                <div class="section-header">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                        <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                    </svg>
+                    Attendance Summary
+                </div>
+                <div class="attendance-summary">
+                    <div class="attendance-header">
+                        <span class="attendance-percentage" id="attendance-percentage">75% (30/40 students)</span>
+                        <span class="attendance-label">Present/Total</span>
+                    </div>
+                    <div class="progress-container">
+                        <div class="progress-bar" id="attendance-progress" style="width: 75%;"></div>
+                    </div>
+                </div>
+
+                <div class="section-header">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="9" cy="7" r="4"></circle>
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                    </svg>
+                    Student Attendance List
+                </div>
+                <div class="student-list">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Student ID</th>
+                                <th>Name</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="student-attendance-list">
+                            <!-- Will be populated by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" id="close-view-btn">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+
+        const get_att_bar = (att) => {
+            if (att <= 25) {
+                return 'red'
+            }
+            else if (att <= 50) {
+                return '#f59e0b'
+            }
+            else if (att <= 75) {
+                return 'blue'
+            }
+            else if (att <= 90) {
+                return 'orange'
+            }
+            else {
+                return ' #10b981'
+            }
+        }
+        const get_name_abb = (fname, lname) => {
+            if (!fname || !lname) {
+                return 'AU'
+            }
+            else {
+                return fname[0].toUpperCase() + lname[0].toUpperCase()
+            }
+        }
+        // DOM Elements
+        const addSessionBtn = document.getElementById('add-session-btn');
+        const addSessionModal = document.getElementById('add-session-modal');
+        const closeModalBtn = document.getElementById('close-modal-btn');
+        const cancelBtn = document.getElementById('cancel-btn');
+        const saveSessionBtn = document.getElementById('save-session-btn');
+        const sessionsTableBody = document.getElementById('sessions-table-body');
+        const viewSessionModal = document.getElementById('view-session-modal');
+        const closeViewModalBtn = document.getElementById('close-view-modal-btn');
+        const closeViewBtn = document.getElementById('close-view-btn');
+        const downloadPdfBtn = document.getElementById('download-pdf-btn');
+        const courseFilter = document.getElementById('course-filter');
+        const attendanceTableBody = document.getElementById('attendance-table-body');
+        const totalSessionsElement = document.getElementById('total-sessions');
+        const attendanceChart = document.getElementById('attendance-chart');
+        const totalStudents = document.getElementById('total-students')
+        const totalPercentage = document.getElementById('total-percentage')
+        const cache = {};
+        console.log(cache)
+
+        document.addEventListener('DOMContentLoaded', async () => {
+
+            const token = localStorage.getItem('access_token')
+
+
+            if (!token) {
+                window.location.href = 'login.html'
+            }
+
+            const course = document.getElementById('course')
+            const courseList = []
+            try {
+
+
+                const users = await fetch('http://127.0.0.1:8000/Attendee/user/', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                })
+
+                const userData = await users.json()
+
+                const firstName = userData.user[0].first_name
+                const lastName = userData.user[0].last_name
+                const userType = userData.user[0].user_type
+
+                if (userType === 'student') {
+                    window.location.href = 'student-dashboard.html'
+                }
+
+
+                document.getElementById('user-name').textContent = `Welcome Prof. ${firstName} ${lastName}`
+                document.getElementById('user-name-abb').textContent = get_name_abb(firstName, lastName)
+
+
+
+
+
+            } catch (error) {
+                console.log(error)
+            }
+
+            try {
+                const classSessionsResponse = await fetch('http://127.0.0.1:8000/Attendee/lecturer/class-sessions/', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                })
+                const classSessionsData = await classSessionsResponse.json()
+                console.log(classSessionsData)
+                const classSessions = classSessionsData.results;
+                const attendanceRecords = classSessionsData.attendance;
+                attendanceRecords.forEach(arr => {
+                    console.log('attendance', arr.attendance)
+
+
+                })
+                console.log('class here', classSessions)
+                // stats data
+                totalSessionsElement.textContent = classSessionsData.total_class
+                totalStudents.textContent = classSessionsData.total_students
+                totalPercentage.textContent = `${classSessionsData.total_percentage}%`
+
+                // Render class sessions table
+
+                sessionsTableBody.innerHTML = '';
+                courseFilter.innerHTML = ''
+                const alloption = document.createElement('option')
+                alloption.value = 'all'
+                alloption.text = 'All courses'
+                courseFilter.appendChild(alloption)
+                if (classSessions.length !== 0) {
+                    classSessions.forEach(session => {
+                        const attendancePercentage = Math.round((session.presentStudents / session.expectedStudents) * 100);
+                        const option = document.createElement('option')
+                        //create options for courses
+                        option.value = session.course_code
+                        option.text = `${session.course_code}: ${session.course}`
+                        courseFilter.append(option)
+                        //create lsit for recent attendance
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                        <td>${session.course_code}: ${session.course}</td>
+                        <td>${new Date(session.start).toLocaleString()}</td>
+                        <td>${session.hall}</td>
+                        <td>
+                            <div class="progress-wrapper">
+                                <div class="progress-container">
+                                    <div class="progress-bar" style="width: ${session.attendance}%; background-color:${get_att_bar(session.attendance)};"></div>
+                                </div>
+                                <span class="progress-text">${session.attendance}%</span>
+                            </div>
+                        </td>
+                        <td>
+                            <a class="action-link view-session-btn" data-id="${session.id}">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                    <circle cx="12" cy="12" r="3"></circle>
+                                </svg>
+                                View
+                            </a>
+                        </td>
+                    `;
+                        sessionsTableBody.appendChild(row);
+
+                        document.querySelectorAll('.view-session-btn').forEach(btn => {
+                            btn.addEventListener('click', function () {
+                                const sessionId = parseInt(this.getAttribute('data-id'));
+                                openViewSessionModal(sessionId);
+                            });
+                        });
+
+                    });
+                } else {
+                    sessionsTableBody.innerHTML = '<p style="margin:20px">No class sessions Yet, add to get started</p>'
+
+                }
+
+                // Add event listeners to view buttons
+
+
+
+                // Render attendance records table
+
+                const courseName = [...new Set(attendanceRecords.map(session => session.course))]
+
+
+                let filteredRecords = attendanceRecords;
+
+
+                filteredRecords.forEach(record => {
+
+
+                    record.attendance.forEach(student => {
+
+                        const statusClass = student.is_present === true ? 'badge-success' : 'badge-danger';
+                        const stutus = student.is_present === true ? 'Present' : 'Absent'
+                        const row = document.createElement('tr');
+
+
+
+                        row.innerHTML = `
+                                <td>${student.student.matricule_number}</td>
+                                <td>${student.student.user.first_name} ${student.student.user.last_name}</td>
+                                <td>${record.course}</td>
+                                <td>${new Date(student.attendance_time).toLocaleString()}</td>
+                                <td><span class="badge ${statusClass}">${stutus}</span></td>
+                            `;
+
+                        attendanceTableBody.appendChild(row);
+                    })
+                })
+
+                courseFilter.addEventListener('change', () => {
+                    const selectedCourse = courseFilter.value;
+                    attendanceTableBody.innerHTML = '';
+                    if (selectedCourse === 'all') {
+                        filteredRecords.forEach(record => {
+
+                            record.attendance.forEach(student => {
+                                const statusClass = student.is_present === true ? 'badge-success' : 'badge-danger';
+                                const stutus = student.is_present === true ? 'Present' : 'Absent'
+                                const row = document.createElement('tr');
+                                row.innerHTML = `
+                                <td>${student.student.matricule_number}</td>
+                                <td>${student.student.user.first_name} ${student.student.user.last_name}</td>
+                                <td>${record.course}</td>
+                                <td>${new Date(student.attendance_time).toLocaleString()}</td>
+                                <td><span class="badge ${statusClass}">${stutus}</span></td>
+                            `;
+                                attendanceTableBody.appendChild(row);
+                            })
+                        })
+                    } else {
+                        const filterCourse = attendanceRecords.filter(session => session.course_code === selectedCourse);
+
+                        filterCourse.forEach(session => {
+
+
+                            session.attendance.forEach(student => {
+                                const statusClass = student.is_present === true ? 'badge-success' : 'badge-danger';
+                                const stutus = student.is_present === true ? 'Present' : 'Absent'
+
+                                const row = document.createElement('tr');
+                                row.innerHTML = `
+                                <td>${student.student.matricule_number}</td>
+                                <td>${student.student.user.first_name} ${student.student.user.last_name}</td>
+                                <td>${session.course}</td>
+                                <td>${new Date(student.attendance_time).toLocaleString()}</td>
+                                <td><span class="badge ${statusClass}">${stutus}</span></td>
+                            `;
+                                attendanceTableBody.appendChild(row);
+                            })
+                        })
+                    }
+                })
+                //create new class session and store in cache memory
+
+                const cachedSchools = JSON.parse(localStorage.getItem('schools'));
+
+                try {
+
+                    const Schools = document.getElementById('school')
+                    const Department = document.getElementById('department')
+                    const courseSelect = document.getElementById('course-select')
+                    Schools.innerHTML = ''
+                    Department.innerHTML = ''
+                    courseSelect.innerHTML = ''
+
+
+                    if (cachedSchools) {
+                        const staticoptionDepartment = document.createElement('option')
+                        staticoptionDepartment.text = 'Select School'
+                        staticoptionDepartment.value = ''
+                        Schools.appendChild(staticoptionDepartment)
+
+                        cachedSchools.results.forEach((school) => {
+
+                            const option = document.createElement('option')
+                            option.text = school.name
+                            option.value = JSON.stringify(school.departments)
+                            Schools.appendChild(option)
+
+
+
+                        })
+                        Schools.addEventListener('change', (e) => {
+                            const departments = JSON.parse(e.target.value)
+                            Department.innerHTML = ''
+                            const staticoptionDepartment = document.createElement('option')
+                            staticoptionDepartment.text = 'Select Department'
+                            staticoptionDepartment.value = ''
+                            Department.appendChild(staticoptionDepartment)
+
+                            departments.forEach(department => {
+                                console.log(department)
+                                const option = document.createElement('option')
+                                option.text = department.name
+                                option.value = JSON.stringify(department.courses)
+                                Department.appendChild(option)
+                            })
+                        })
+                        Department.addEventListener('change', (e) => {
+                            const courses = JSON.parse(e.target.value)
+                            courseSelect.innerHTML = ''
+                            const staticoptionCourse = document.createElement('option')
+                            staticoptionCourse.text = 'Select Course'
+                            staticoptionCourse.value = ''
+                            courseSelect.appendChild(staticoptionCourse)
+                            courses.forEach(course => {
+                                console.log(course)
+                                const option = document.createElement('option')
+                                option.text = `${course.code}: ${course.name}`
+                                option.value = course.name
+                                courseSelect.appendChild(option)
+
+                            })
+                        })
+
+
+
+                    } else {
+                        const schools = await fetch('http://127.0.0.1:8000/Attendee/school-department-course/');
+                        const schoolsData = await schools.json()
+                        console.log(schoolsData)
+
+                        cache.schools = schoolsData
+                        localStorage.setItem('schools', JSON.stringify(cache.schools))
+
+
+                        schoolsData.results.forEach((school) => {
+
+                            const option = document.createElement('option')
+                            option.text = school.name
+                            option.value = JSON.stringify(school.departments)
+                            Schools.appendChild(option)
+
+
+                        })
+                        Schools.addEventListener('change', (e) => {
+                            const departments = JSON.parse(e.target.value)
+                            Department.innerHTML = ''
+                            const staticoptionDepartment = document.createElement('option')
+                            staticoptionDepartment.text = 'Select Department'
+                            staticoptionDepartment.value = ''
+                            Department.appendChild(staticoptionDepartment)
+
+                            departments.forEach(department => {
+                                console.log(department)
+                                const option = document.createElement('option')
+                                option.text = department.name
+                                option.value = JSON.stringify(department.courses)
+                                Department.appendChild(option)
+                            })
+                        })
+                        Department.addEventListener('change', (e) => {
+                            const courses = JSON.parse(e.target.value)
+                            courseSelect.innerHTML = ''
+                            const staticoptionCourse = document.createElement('option')
+                            staticoptionCourse.text = 'Select Course'
+                            staticoptionCourse.value = ''
+                            courseSelect.appendChild(staticoptionCourse)
+                            courses.forEach(course => {
+                                console.log(course)
+                                const option = document.createElement('option')
+                                option.text = `${course.code}: ${course.name}`
+                                option.value = course.name
+                                courseSelect.appendChild(option)
+
+                            })
+                        })
+
+
+                    }
+                } catch (error) {
+                    console.log(error)
+                }
+
+
+
+
+                // Initialize attendance chart
+
+                attendanceChart.innerHTML = '';
+
+                // Extract course names and attendance percentages
+                const courses = [...new Set(classSessions.map(session => session.course.split(':')[0]))];
+                console.log('courses', courses)
+                const attendanceData = courses.map(course => {
+                    const courseSessions = classSessions.filter(session => session.course.includes(course));
+                    const totalExpected = courseSessions.reduce((sum, session) => sum + session.total_students, 0);
+                    const totalPresent = courseSessions.reduce((sum, session) => sum + session.students_present, 0);
+
+                    return Math.round((totalPresent / totalExpected) * 100);
+
+
+                });
+
+                // Create chart bars
+                const barWidth = 60;
+                const barGap = 40;
+                const totalWidth = courses.length * (barWidth + barGap) - barGap;
+                const startX = (attendanceChart.offsetWidth - totalWidth) / 2;
+
+                courses.forEach((course, index) => {
+                    const percentage = attendanceData[index];
+                    const barHeight = (percentage / 100) * 200; // Max height 200px
+
+                    const bar = document.createElement('div');
+                    bar.className = 'chart-bar';
+                    bar.style.height = '0'; // Start at 0 for animation
+                    bar.style.left = `${startX + index * (barWidth + barGap)}px`;
+                    bar.style.width = `${barWidth}px`;
+
+                    const label = document.createElement('div');
+                    label.className = 'chart-label';
+                    label.textContent = course;
+                    label.style.left = `${startX + index * (barWidth + barGap)}px`;
+
+                    attendanceChart.appendChild(bar);
+                    attendanceChart.appendChild(label);
+
+                    // Animate bar height
+                    setTimeout(() => {
+                        bar.style.height = `${barHeight}px`;
+                    }, 100 * index);
+                });
+
+
+                // Open view session modal
+                function openViewSessionModal(sessionId) {
+                    const session = classSessions.find(s => s.id === sessionId);
+                    if (!session) return;
+
+                    document.getElementById('view-session-title').textContent = `Session Details: ${session.course}`;
+                    document.getElementById('view-course').textContent = session.course;
+                    document.getElementById('view-date').textContent = `${new Date(session.start).toLocaleString()}`;
+                    document.getElementById('view-time').textContent = `${new Date(session.end).toLocaleString()}`;
+                    document.getElementById('view-room').textContent = session.hall;
+
+                    const attendancePercentage = Math.round(session.attendance);
+                    document.getElementById('attendance-percentage').textContent = `${session.attendance}% - (${session.students_present}/${session.total_students} students)`;
+                    document.getElementById('attendance-progress').style.width = `${session.attendance}%`;
+                    document.getElementById('attendance-progress').style.backgroundColor = `${get_att_bar(session.attendance)}`;
+
+
+                    // Populate student attendance list
+                    const studentList = document.getElementById('student-attendance-list');
+                    studentList.innerHTML = '';
+
+                    // Filter attendance records for this session
+                    const sessionRecords = attendanceRecords.filter(record =>
+                        record.course === session.course
+                    );
+
+                    sessionRecords.forEach(record => {
+
+                        record.attendance.forEach(student => {
+                            const statusClass = student.is_present === true ? 'badge-success' : 'badge-danger';
+                            const status = student.is_present === true ? 'Present' : 'Absent';
+                            const row = document.createElement('tr');
+                            row.innerHTML = `
+                                <td>${student.student.matricule_number}</td>
+                                <td>${student.student.user.first_name} ${student.student.user.last_name}</td>
+                                <td><span class="badge ${statusClass}">${status}</span></td>
+                            `;
+                            studentList.appendChild(row);
+                        })
+
+                    });
+
+                    viewSessionModal.classList.add('active');
+
+
+
+                }
+
+
+
+                // Format date to a more readable format
+                function formatDate(dateString) {
+                    const options = { year: 'numeric', month: 'short', day: 'numeric' };
+                    return new Date(dateString).toLocaleDateString(undefined, options);
+                }
+
+                // Generate PDF function
+                async function generatePDF() {
+                    const { jsPDF } = window.jspdf;
+                    const doc = new jsPDF();
+
+                    // Title header
+                    doc.setFontSize(18);
+                    doc.text('Attendee Attendance Tracking System', 14, 22);
+
+                    // Current date for header/footer
+                    const now = new Date();
+                    const formattedDate = now.toLocaleDateString() + ' ' + now.toLocaleTimeString();
+
+                    // Add a small horizontal line under title
+                    doc.setDrawColor(0);
+                    doc.setLineWidth(0.5);
+                    doc.line(14, 26, 196, 26);
+
+                    // Starting Y position for table
+                    let posY = 35;
+                    const leftMargin = 14;
+
+                    // Table headers and widths
+                    const headers = ['Matricule Number', 'Name', 'Course', 'Attendance Time', 'Status'];
+                    const colWidths = [40, 50, 40, 45, 30];
+                    const cellHeight = 8;
+
+                    // Draw table headers
+                    doc.setFontSize(12);
+                    doc.setTextColor(0, 0, 128); // dark blue for header
+                    headers.forEach((header, i) => {
+                        doc.text(header, leftMargin + colWidths.slice(0, i).reduce((a, b) => a + b, 0) + 2, posY);
+                    });
+
+                    posY += 4;
+                    doc.setDrawColor(0);
+                    doc.setLineWidth(0.5);
+                    doc.line(leftMargin, posY, leftMargin + colWidths.reduce((a, b) => a + b, 0), posY);
+                    posY += 6;
+
+                    // Get currently displayed rows from the table body
+                    const rows = attendanceTableBody.querySelectorAll('tr');
+
+                    if (rows.length === 0) {
+                        doc.setFontSize(12);
+                        doc.setTextColor(255, 0, 0);
+                        doc.text('No attendance records found for the selected filter.', leftMargin, posY);
+                    } else {
+                        doc.setFontSize(11);
+                        doc.setTextColor(0);
+
+                        rows.forEach((row, rowIndex) => {
+                            const cols = row.querySelectorAll('td');
+                            cols.forEach((col, i) => {
+                                // If text is too long, clip or truncate if needed (optional)
+                                let text = col.textContent.trim();
+                                if (text.length > 30) {
+                                    text = text.slice(0, 27) + '...';
+                                }
+                                doc.text(text, leftMargin + colWidths.slice(0, i).reduce((a, b) => a + b, 0) + 2, posY);
+                            });
+
+                            posY += cellHeight;
+
+                            // Add new page if we reach near bottom of page
+                            if (posY > 280) {
+                                doc.addPage();
+                                posY = 20;
+                            }
+                        });
+                    }
+
+                    // Footer
+                    const pageCount = doc.internal.getNumberOfPages();
+                    for (let i = 1; i <= pageCount; i++) {
+                        doc.setPage(i);
+                        doc.setFontSize(9);
+                        doc.setTextColor(150);
+                        const footerText = `Printed by attendee on : ${formattedDate}`;
+                        doc.text(footerText, leftMargin, 290, { align: 'left' });
+                        // Optional page number on right
+                        doc.text(`Page ${i} of ${pageCount}`, 196, 290, { align: 'right' });
+                    }
+
+                    // Save the PDF
+                    doc.save(`Attendance_Report_${now.toISOString().split('T')[0]}.pdf`);
+                }
+
+
+                // Event Listeners
+                addSessionBtn.addEventListener('click', function () {
+                    addSessionModal.classList.add('active');
+                });
+
+                closeModalBtn.addEventListener('click', function () {
+                    addSessionModal.classList.remove('active');
+                });
+
+                cancelBtn.addEventListener('click', function () {
+                    addSessionModal.classList.remove('active');
+                });
+
+                closeViewModalBtn.addEventListener('click', function () {
+                    viewSessionModal.classList.remove('active');
+                });
+
+                closeViewBtn.addEventListener('click', function () {
+                    viewSessionModal.classList.remove('active');
+                });
+
+                saveSessionBtn.addEventListener('click', async function () {
+                    const course = document.getElementById('course-select').value;
+                    const startTime = document.getElementById('start_time').value;
+                    const endTime = document.getElementById('end_time').value;
+                    const room = document.getElementById('room').value;
+                    const expectedStudents = parseInt(document.getElementById('expected-students').value);
+
+                    if (!course || !startTime || !endTime || !room || isNaN(expectedStudents)) {
+                        alert('Please fill in all fields');
+                        return;
+                    }
+
+                    const currentTime = new Date().getTime();
+
+                    if (startTime >= endTime || startTime < currentTime) {
+                        alert('Start time cannot be more than End time or less than current time');
+                        return;
+                    }
+
+                    // Get Geolocation
+                    if (navigator.geolocation) {
+                        navigator.geolocation.getCurrentPosition(async function (position) {
+                            const latitude = position.coords.latitude;
+                            const longitude = position.coords.longitude;
+
+                            try {
+                                const response = await fetch('http://127.0.0.1:8000/Attendee/lecturer/create-class-sessions/', {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                        'Authorization': `Bearer ${token}`
+                                    },
+                                    body: JSON.stringify({
+                                        'course': course,
+                                        'start_time': startTime,
+                                        'end_time': endTime,
+                                        'hall': room,
+                                        'latitude': latitude,
+                                        'longitude': longitude
+                                    })
+                                });
+
+                                const data = await response.json();
+                                console.log('data created', data);
+
+                                // Create new session
+                                const newSession = {
+                                    id: classSessions.length + 1,
+                                    course,
+                                    startTime,
+                                    endTime,
+                                    room,
+                                    expectedStudents,
+                                    presentStudents: 0 // New session has no attendance yet
+                                };
+
+                                classSessions.unshift(newSession); // Add to beginning of array
+                                addSessionModal.classList.remove('active');
+
+                                // Reset form
+                                document.getElementById('add-session-form').reset();
+                                alert(`${data.message}`);
+                                window.location.href = 'lecturer-dashboard.html';
+                            } catch (error) {
+                                console.log(error);
+                                alert('Failed to create session');
+                            }
+                        }, function (error) {
+                            alert('Unable to retrieve location. Please enable location services.');
+                        });
+                    } else {
+                        alert('Geolocation is not supported by your browser.');
+                    }
+                });
+
+
+
+                downloadPdfBtn.addEventListener('click', function () {
+                    generatePDF();
+                });
+
+                // Initialize dashboard on page load
+
+
+
+            } catch (error) {
+                console.log(error)
+            }
+        })
+
+        document.querySelector('.sign-out-btn').addEventListener('click', async function () {
+            try {
+                localStorage.removeItem('access_token');
+                const cookieMatch = document.cookie.match(/refresh_token=([^;]*)/);
+                if (cookieMatch && cookieMatch[1]) {
+                    const refreshToken = cookieMatch[1]
+
+                    await fetch('http://127.0.0.1:8000/Attendee/logout/', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ 'refresh': refreshToken })
+                    });
+                } else {
+                    console.log('no match cookie')
+                }
+
+                document.cookie = 'refresh_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC;'
+                window.location.href = 'login.html'
+            }
+            catch (error) {
+                console.log(error)
+            }
+        });
+
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+</body>
+
+</html>
