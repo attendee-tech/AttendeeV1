@@ -1297,7 +1297,7 @@
     </div>
 
     <script>
-
+        const url='https://attendee-api.onrender.com'
         const addSessionBtn = document.getElementById('add-session-btn');
         const addSessionModal = document.getElementById('add-session-modal');
         const closeModalBtn = document.getElementById('close-modal-btn');
@@ -1363,7 +1363,7 @@
                 const studentLongitude = position.coords.longitude;
 
                 try {
-                    const response = await fetch('http://127.0.0.1:8000/Attendee/student/access-session/', {
+                    const response = await fetch(`${url}/Attendee/student/access-session/`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -1381,7 +1381,7 @@
                     if (data.access_granted) {
                         alert("Access granted!");
 
-                        const attendanceResponse = await fetch(`http://127.0.0.1:8000/Attendee/attendance/${id}/`, {
+                        const attendanceResponse = await fetch(`${url}/Attendee/attendance/${id}/`, {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
@@ -1418,7 +1418,7 @@
         // Fetch and update attendance data (partial UI refresh)
         async function fetchAndUpdateAttendanceData() {
             try {
-                const res = await fetch('http://127.0.0.1:8000/Attendee/student/class-sessions/', {
+                const res = await fetch(`${url}/Attendee/student/class-sessions/`, {
                     method: 'GET',
                     headers: {
                         'Authorization': `Bearer ${token}`
@@ -1519,7 +1519,7 @@
 
             try {
                 // Fetch user data
-                const users = await fetch('http://127.0.0.1:8000/Attendee/user/', {
+                const users = await fetch(`${url}/Attendee/user/`, {
                     method: 'GET',
                     headers: {
                         'Authorization': `Bearer ${token}`
@@ -1576,7 +1576,7 @@
                 const cookieMatch = document.cookie.match(/refresh_token=([^;]*)/);
                 if (cookieMatch && cookieMatch[1]) {
                     const refreshToken = cookieMatch[1];
-                    await fetch('http://127.0.0.1:8000/Attendee/logout/', {
+                    await fetch(`${url}/Attendee/logout/`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ refresh: refreshToken })

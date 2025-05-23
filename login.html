@@ -475,10 +475,10 @@
     </div>
 
     <script>
-        
+        const url='https://attendee-api.onrender.com'
         window.addEventListener('load', async()=>{
             const token = localStorage.getItem('access_token')
-            const users = await fetch('http://127.0.0.1:8000/Attendee/user/', {
+            const users = await fetch(`${url}/Attendee/user/`, {
                             method: 'GET',
                             headers: {
                                 'Authorization': `Bearer ${token}`
@@ -517,7 +517,7 @@
             }
 
             try {
-                const respone = await fetch('http://127.0.0.1:8000/Attendee/login/', {
+                const respone = await fetch(`${url}/Attendee/login/`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -534,7 +534,7 @@
                         console.log(data.tokens.refresh)
                         message.textContent=data.message
                         message.style.color='#10b981'
-                        const users = await fetch('http://127.0.0.1:8000/Attendee/user/', {
+                        const users = await fetch(`${url}/Attendee/user/`, {
                             method: 'GET',
                             headers: {
                                 'Authorization': `Bearer ${data.tokens.access}`

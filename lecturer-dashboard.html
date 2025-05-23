@@ -1107,7 +1107,7 @@
     </div>
 
     <script>
-
+            const url='https://attendee-api.onrender.com'
         const get_att_bar = (att) => {
             if (att <= 25) {
                 return 'red'
@@ -1167,7 +1167,7 @@
             try {
 
 
-                const users = await fetch('http://127.0.0.1:8000/Attendee/user/', {
+                const users = await fetch(`${url}/Attendee/user/`, {
                     method: 'GET',
                     headers: {
                         'Authorization': `Bearer ${token}`
@@ -1197,7 +1197,7 @@
             }
 
             try {
-                const classSessionsResponse = await fetch('http://127.0.0.1:8000/Attendee/lecturer/class-sessions/', {
+                const classSessionsResponse = await fetch(`${url}/Attendee/lecturer/class-sessions/`, {
                     method: 'GET',
                     headers: {
                         'Authorization': `Bearer ${token}`
@@ -1417,7 +1417,7 @@
 
 
                     } else {
-                        const schools = await fetch('http://127.0.0.1:8000/Attendee/school-department-course/');
+                        const schools = await fetch(`${url}/Attendee/school-department-course/`);
                         const schoolsData = await schools.json()
                         console.log(schoolsData)
 
@@ -1716,7 +1716,7 @@
                             const longitude = position.coords.longitude;
 
                             try {
-                                const response = await fetch('http://127.0.0.1:8000/Attendee/lecturer/create-class-sessions/', {
+                                const response = await fetch(`${url}/Attendee/lecturer/create-class-sessions/`, {
                                     method: 'POST',
                                     headers: {
                                         'Content-Type': 'application/json',
@@ -1787,7 +1787,7 @@
                 if (cookieMatch && cookieMatch[1]) {
                     const refreshToken = cookieMatch[1]
 
-                    await fetch('http://127.0.0.1:8000/Attendee/logout/', {
+                    await fetch(`${url}/Attendee/logout/`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json'
