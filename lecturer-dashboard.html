@@ -1436,6 +1436,10 @@
 
                         cache.schools = schoolsData
                         localStorage.setItem('schools', JSON.stringify(cache.schools))
+                        const staticoptionDepartment = document.createElement('option')
+                        staticoptionDepartment.text = 'Select School'
+                        staticoptionDepartment.value = ''
+                        Schools.appendChild(staticoptionDepartment)
 
 
                         schoolsData.results.forEach((school) => {
