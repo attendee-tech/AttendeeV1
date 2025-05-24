@@ -6,6 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Student Dashboard | Attendee</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.css" />
 
 
     <style>
@@ -1477,14 +1480,22 @@
             }
 
             // The same initMap function from your HTML with an optional title
-            function initMap(containerId, lecturerLat, lecturerLon, studentLat, studentLon, radius, color = 'blue', title = 'Session') {
+            // Initialize map variables
+            let currentLine = null;
+            let currentRouting = null;
 
-                // Destroy previous map if it exists
+            function initMap(containerId, lecturerLat, lecturerLon, studentLat, studentLon, radius, color = 'blue', title = 'Session') {
+                // Remove old map
                 if (currentMap !== null) {
-                    currentMap.remove();  // Clean up the old map instance
+                    currentMap.remove();
+                    currentMap = null;
+                    currentLine = null;
+                    currentRouting = null;
                 }
-                
+
+                // Create new map
                 currentMap = L.map(containerId).setView([lecturerLat, lecturerLon], 16);
+
                 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                     maxZoom: 19,
                     attribution: '© OpenStreetMap'
@@ -1492,38 +1503,40 @@
 
                 L.marker([lecturerLat, lecturerLon]).addTo(currentMap).bindPopup(`${title}<br>Lecturer Location`).openPopup();
                 L.marker([studentLat, studentLon]).addTo(currentMap).bindPopup('Student Location');
+
                 L.circle([lecturerLat, lecturerLon], {
                     color: color,
                     fillColor: color === 'blue' ? '#add8e6' : '#a0f0a0',
                     fillOpacity: 0.4,
                     radius: radius
                 }).addTo(currentMap).bindPopup(`Range: ${radius} meters`).openPopup();
-                currentMap.setView([lecturerLat, lecturerLon], 16);
+
                 L.control.scale().addTo(currentMap);
-                L.Routing.control({
-                    waypoints: [
-                        L.latLng(lecturerLat, lecturerLon),
-                        L.latLng(studentLat, studentLon)
-                    ],
-                    routeWhileDragging: true,
-                    geocoder: L.Control.Geocoder.nominatim()
-                }).addTo(currentMap);
-                // Draw line between lecturer and student
-                if (currentMap.hasLayer(line)) {
-                    currentMap.removeLayer(line);
+
+                // Routing
+                if (L.Routing && L.Routing.control) {
+                    currentRouting = L.Routing.control({
+                        waypoints: [
+                            L.latLng(lecturerLat, lecturerLon),
+                            L.latLng(studentLat, studentLon)
+                        ],
+                        routeWhileDragging: false,
+                        geocoder: L.Control.Geocoder ? L.Control.Geocoder.nominatim() : undefined
+                    }).addTo(currentMap);
                 }
-                // Calculate distance and draw line
-                const line = L.polyline([[lecturerLat, lecturerLon], [studentLat, studentLon]], { color: 'red' }).addTo(currentMap);
+
+                // Draw line and show distance
+                currentLine = L.polyline([[lecturerLat, lecturerLon], [studentLat, studentLon]], { color: 'red' }).addTo(currentMap);
                 const distance = haversine(lecturerLat, lecturerLon, studentLat, studentLon).toFixed(2);
-                line.bindPopup(`Distance: ${distance} meters`).openPopup();
+                currentLine.bindPopup(`Distance: ${distance} meters`).openPopup();
 
-                // Add geocoder control
-                const geocoder = L.Control.Geocoder.nominatim();
-                L.Control.geocoder({
-                    defaultMarkGeocode: false,
-                    geocoder: geocoder
-                }).addTo(currentMap);
-
+                // Add geocoder
+                if (L.Control.geocoder) {
+                    L.Control.geocoder({
+                        defaultMarkGeocode: false,
+                        geocoder: L.Control.Geocoder.nominatim()
+                    }).addTo(currentMap);
+                }
             }
 
             function haversine(lat1, lon1, lat2, lon2) {
