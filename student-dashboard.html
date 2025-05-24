@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Student Dashboard | Attendee</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-    
+
 
     <style>
         /* Reset and Base Styles */
@@ -1313,245 +1313,276 @@
             </div>
         </div>
 
-    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-    <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
-    <script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.js"></script>
-    
+        <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+        <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
+        <script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.js"></script>
 
-    <script>
-        const url = 'https://attendee-api.onrender.com'
-        const addSessionBtn = document.getElementById('add-session-btn');
-        const addSessionModal = document.getElementById('add-session-modal');
-        const closeModalBtn = document.getElementById('close-modal-btn');
-        const cancelBtn = document.getElementById('cancel-btn');
-        const menuLogo = document.getElementById('menu-logo');
-        const SideLogo = document.getElementById('side-logo');
-        const sideBar = document.getElementById('sidebar');
-        const mapModal = document.getElementById('map-modal');
-        const closeMapModalBtn = document.getElementById('close-map-modal-btn');
-        const closeMapBtn = document.getElementById('close-map-btn');
-        
-        const mapContainer = document.getElementById('map');
-        
 
-        // Toggle sidebar
-        menuLogo.addEventListener('click', () => {
-            sideBar.style.top = '1px';
-        });
+        <script>
+            const url = 'https://attendee-api.onrender.com'
+            const addSessionBtn = document.getElementById('add-session-btn');
+            const addSessionModal = document.getElementById('add-session-modal');
+            const closeModalBtn = document.getElementById('close-modal-btn');
+            const cancelBtn = document.getElementById('cancel-btn');
+            const menuLogo = document.getElementById('menu-logo');
+            const SideLogo = document.getElementById('side-logo');
+            const sideBar = document.getElementById('sidebar');
+            const mapModal = document.getElementById('map-modal');
+            const closeMapModalBtn = document.getElementById('close-map-modal-btn');
+            const closeMapBtn = document.getElementById('close-map-btn');
 
-        SideLogo.addEventListener('click', () => {
-            sideBar.style.top = '-1500px';
-        });
+            const mapContainer = document.getElementById('map');
+            let currentMap = null
 
-        // Modal open/close handlers
-        addSessionBtn.addEventListener('click', () => addSessionModal.classList.add('active'));
-        closeMapBtn.addEventListener('click', () => mapModal.classList.remove('active'));
-        closeMapModalBtn.addEventListener('click', () => mapModal.classList.remove('active'));
-        closeModalBtn.addEventListener('click', () => addSessionModal.classList.remove('active'));
-        cancelBtn.addEventListener('click', () => addSessionModal.classList.remove('active'));
 
-        // Helper functions for attendance UI
-        const get_att_bar = (att) => {
-            if (att <= 25) return 'red';
-            if (att <= 50) return '#f59e0b';
-            if (att <= 75) return 'blue';
-            if (att <= 90) return 'orange';
-            return '#10b981';
-        };
+            // Toggle sidebar
+            menuLogo.addEventListener('click', () => {
+                sideBar.style.top = '1px';
+            });
 
-        const get_att_status = (att) => {
-            if (att <= 25) return 'BAD';
-            if (att <= 50) return 'POOR';
-            if (att <= 75) return 'FAIR';
-            if (att <= 90) return 'GOOD';
-            return 'Excellent';
-        };
+            SideLogo.addEventListener('click', () => {
+                sideBar.style.top = '-1500px';
+            });
 
-        const get_name_abb = (fname, lname) => {
-            if (!fname || !lname) return 'AU';
-            return fname[0].toUpperCase() + lname[0].toUpperCase();
-        };
+            // Modal open/close handlers
+            addSessionBtn.addEventListener('click', () => addSessionModal.classList.add('active'));
+            closeMapBtn.addEventListener('click', () => mapModal.classList.remove('active'));
+            closeMapModalBtn.addEventListener('click', () => {
+                mapModal.classList.remove('active'); if (currentMap !== null) {
+                    currentMap.remove();
+                    currentMap = null;
+                }
 
-        // Cached DOM references for performance
-        const username = document.getElementById('username');
-        const course = document.getElementById('course');
-        const listToMarkAtt = document.getElementById('mark-att');
-        const AttValue = document.getElementById('att-value');
-        const AttTrend = document.getElementById('att-trend');
-        const classAtt = document.getElementById('class-att');
-        const AttStatus = document.getElementById('att-status');
-        const RecentAtt = document.getElementById('recent-att');
+                // Clear inner HTML (optional)
+                document.getElementById('modalMap').innerHTML = '';
+            });
+            closeModalBtn.addEventListener('click', () => addSessionModal.classList.remove('active'));
+            cancelBtn.addEventListener('click', () => addSessionModal.classList.remove('active'));
 
-        // Store fetched data globally for real-time updates without re-fetching everything
-        let globalData = null;
-        let token = null;
+            // Helper functions for attendance UI
+            const get_att_bar = (att) => {
+                if (att <= 25) return 'red';
+                if (att <= 50) return '#f59e0b';
+                if (att <= 75) return 'blue';
+                if (att <= 90) return 'orange';
+                return '#10b981';
+            };
 
-        // Mark Attendance Function (reusable)
-        const MarkAttendance = async (id) => {
-            navigator.geolocation.getCurrentPosition(async (position) => {
-                const studentLatitude = position.coords.latitude;
-                const studentLongitude = position.coords.longitude;
+            const get_att_status = (att) => {
+                if (att <= 25) return 'BAD';
+                if (att <= 50) return 'POOR';
+                if (att <= 75) return 'FAIR';
+                if (att <= 90) return 'GOOD';
+                return 'Excellent';
+            };
 
-                try {
-                    const response = await fetch(`${url}/Attendee/student/access-session/`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${token}`
-                        },
-                        body: JSON.stringify({
-                            session_id: id,
-                            student_latitude: studentLatitude,
-                            student_longitude: studentLongitude
-                        })
-                    });
+            const get_name_abb = (fname, lname) => {
+                if (!fname || !lname) return 'AU';
+                return fname[0].toUpperCase() + lname[0].toUpperCase();
+            };
 
-                    const data = await response.json();
+            // Cached DOM references for performance
+            const username = document.getElementById('username');
+            const course = document.getElementById('course');
+            const listToMarkAtt = document.getElementById('mark-att');
+            const AttValue = document.getElementById('att-value');
+            const AttTrend = document.getElementById('att-trend');
+            const classAtt = document.getElementById('class-att');
+            const AttStatus = document.getElementById('att-status');
+            const RecentAtt = document.getElementById('recent-att');
 
-                    if (data.access_granted) {
-                        alert("Access granted!");
+            // Store fetched data globally for real-time updates without re-fetching everything
+            let globalData = null;
+            let token = null;
 
-                        const attendanceResponse = await fetch(`${url}/Attendee/attendance/${id}/`, {
+            // Mark Attendance Function (reusable)
+            const MarkAttendance = async (id) => {
+                navigator.geolocation.getCurrentPosition(async (position) => {
+                    const studentLatitude = position.coords.latitude;
+                    const studentLongitude = position.coords.longitude;
+
+                    try {
+                        const response = await fetch(`${url}/Attendee/student/access-session/`, {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
                                 'Authorization': `Bearer ${token}`
-                            }
+                            },
+                            body: JSON.stringify({
+                                session_id: id,
+                                student_latitude: studentLatitude,
+                                student_longitude: studentLongitude
+                            })
                         });
 
-                        const attendanceData = await attendanceResponse.json();
-                        alert(attendanceData.message);
+                        const data = await response.json();
 
-                        // Instead of full reload, update UI selectively or fetch updated attendance data here:
-                        await fetchAndUpdateAttendanceData();
+                        if (data.access_granted) {
+                            alert("Access granted!");
 
-                        console.log(attendanceData);
-                    } else {
-                        alert("Access denied. You're not within range.");
-                    }
-                } catch (error) {
-                    console.error('Error checking access:', error);
-                }
-            });
-        };
+                            const attendanceResponse = await fetch(`${url}/Attendee/attendance/${id}/`, {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'Authorization': `Bearer ${token}`
+                                }
+                            });
 
-        async function showClassSessionMap(sessionId) {
-            const token = localStorage.getItem('access_token');
+                            const attendanceData = await attendanceResponse.json();
+                            alert(attendanceData.message);
 
-            // Get student's location
-            navigator.geolocation.getCurrentPosition(async (position) => {
-                const studentLat = position.coords.latitude;
-                const studentLon = position.coords.longitude;
+                            // Instead of full reload, update UI selectively or fetch updated attendance data here:
+                            await fetchAndUpdateAttendanceData();
 
-                // Fetch session data from backend
-                const response = await fetch(`${url}/Attendee/course/class-session/${sessionId}/`, {
-                    method: 'GET',
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                    },
-                });
-
-                const data = await response.json();
-                const sessionData = data.data[0];
-
-                if (!response.ok) {
-                    alert(data.error || "Failed to fetch session data.");
-                    return;
-                }
-
-                // Destructure session data
-                const { latitude, longitude, range_radius, title } = sessionData;
-
-                // Render map
-                initMap('map', latitude, longitude, studentLat, studentLon, range_radius, 'green', title);
-            });
-        }
-
-        // The same initMap function from your HTML with an optional title
-        function initMap(containerId, lecturerLat, lecturerLon, studentLat, studentLon, radius, color = 'blue', title = 'Session') {
-            const map = L.map(containerId).setView([lecturerLat, lecturerLon], 16);
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                maxZoom: 19,
-                attribution: '© OpenStreetMap'
-            }).addTo(map);
-
-            L.marker([lecturerLat, lecturerLon]).addTo(map).bindPopup(`${title}<br>Lecturer Location`).openPopup();
-            L.marker([studentLat, studentLon]).addTo(map).bindPopup('Student Location');
-            L.circle([lecturerLat, lecturerLon], {
-                color: color,
-                fillColor: color === 'blue' ? '#add8e6' : '#a0f0a0',
-                fillOpacity: 0.4,
-                radius: radius
-            }).addTo(map);
-
-            const line = L.polyline([[lecturerLat, lecturerLon], [studentLat, studentLon]], { color: 'red' }).addTo(map);
-            const distance = haversine(lecturerLat, lecturerLon, studentLat, studentLon).toFixed(2);
-            line.bindPopup(`Distance: ${distance} meters`).openPopup();
-        }
-
-        function haversine(lat1, lon1, lat2, lon2) {
-            const R = 6371000;
-            const toRad = x => x * Math.PI / 180;
-            const dLat = toRad(lat2 - lat1);
-            const dLon = toRad(lon2 - lon1);
-            const a = Math.sin(dLat / 2) ** 2 +
-                Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
-                Math.sin(dLon / 2) ** 2;
-            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-            return R * c;
-        }
-
-
-
-
-        // Function to attach click event listeners to session buttons efficiently
-        function attachSessionClickListeners() {
-            document.querySelectorAll('.view-session-btn').forEach(btn => {
-                btn.onclick = () => {
-                    const sessionId = parseInt(btn.getAttribute('data-id'));
-                    MarkAttendance(sessionId);
-                };
-            });
-            document.querySelectorAll('.view-map-btn').forEach(btn => {
-                btn.onclick = () => {
-                    const sessionId = parseInt(btn.getAttribute('data-id'));
-                    mapModal.classList.add('active');
-                    document.getElementById('map').innerHTML = ''; // Clear previous map
-                    showClassSessionMap(sessionId);
-                };
-            });
-
-        }
-
-        // Fetch and update attendance data (partial UI refresh)
-        async function fetchAndUpdateAttendanceData() {
-            try {
-                const res = await fetch(`${url}/Attendee/student/class-sessions/`, {
-                    method: 'GET',
-                    headers: {
-                        'Authorization': `Bearer ${token}`
+                            console.log(attendanceData);
+                        } else {
+                            alert("Access denied. You're not within range.");
+                        }
+                    } catch (error) {
+                        console.error('Error checking access:', error);
                     }
                 });
-                const data = await res.json();
-                globalData = data; // update global data cache
+            };
 
-                // Update UI parts with new data
-                document.getElementById('user-id').textContent = `Student ID: ${data.matricule}`;
-                AttValue.textContent = `${data.attendance_percentage}%`;
-                AttStatus.textContent = get_att_status(data.attendance_percentage);
-                AttStatus.style.color = get_att_bar(data.attendance_percentage);
-                AttTrend.textContent = `^${data.attendance_present}%`;
-                classAtt.textContent = `${data.attendance_present}/${data.class_sessions_count}`;
-                document.getElementById('std-school').textContent = data.school;
-                document.getElementById('std-department').textContent = data.department;
-                document.getElementById('std-id').textContent = data.matricule;
+            async function showClassSessionMap(sessionId) {
+                const token = localStorage.getItem('access_token');
 
-                // Update courses list (clear and re-add)
-                course.innerHTML = '';
-                data.results.forEach(list => {
-                    const courseList = document.createElement('div');
-                    courseList.className = 'course-item';
-                    courseList.innerHTML = `
+                // Get student's location
+                navigator.geolocation.getCurrentPosition(async (position) => {
+                    const studentLat = position.coords.latitude;
+                    const studentLon = position.coords.longitude;
+
+                    // Fetch session data from backend
+                    const response = await fetch(`${url}/Attendee/course/class-session/${sessionId}/`, {
+                        method: 'GET',
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                        },
+                    });
+
+                    const data = await response.json();
+                    const sessionData = data.data[0];
+
+                    if (!response.ok) {
+                        alert(data.error || "Failed to fetch session data.");
+                        return;
+                    }
+
+                    // Destructure session data
+                    const { latitude, longitude, range_radius, title } = sessionData;
+
+                    // Render map
+                    initMap('map', latitude, longitude, studentLat, studentLon, range_radius, 'green', title);
+                });
+            }
+
+            // The same initMap function from your HTML with an optional title
+            function initMap(containerId, lecturerLat, lecturerLon, studentLat, studentLon, radius, color = 'blue', title = 'Session') {
+                currentMap = L.map(containerId).setView([lecturerLat, lecturerLon], 16);
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    maxZoom: 19,
+                    attribution: '© OpenStreetMap'
+                }).addTo(currentMap);
+
+                L.marker([lecturerLat, lecturerLon]).addTo(currentMap).bindPopup(`${title}<br>Lecturer Location`).openPopup();
+                L.marker([studentLat, studentLon]).addTo(currentMap).bindPopup('Student Location');
+                L.circle([lecturerLat, lecturerLon], {
+                    color: color,
+                    fillColor: color === 'blue' ? '#add8e6' : '#a0f0a0',
+                    fillOpacity: 0.4,
+                    radius: radius
+                }).addTo(currentMap).bindPopup(`Range: ${radius} meters`).openPopup();
+                currentMap.setView([lecturerLat, lecturerLon], 16);
+                L.control.scale().addTo(currentMap);
+                L.Routing.control({
+                    waypoints: [
+                        L.latLng(lecturerLat, lecturerLon),
+                        L.latLng(studentLat, studentLon)
+                    ],
+                    routeWhileDragging: true,
+                    geocoder: L.Control.Geocoder.nominatim()
+                }).addTo(currentMap);
+                // Draw line between lecturer and student
+                if (currentMap.hasLayer(line)) {
+                    currentMap.removeLayer(line);
+                }
+                // Calculate distance and draw line
+                const line = L.polyline([[lecturerLat, lecturerLon], [studentLat, studentLon]], { color: 'red' }).addTo(currentMap);
+                const distance = haversine(lecturerLat, lecturerLon, studentLat, studentLon).toFixed(2);
+                line.bindPopup(`Distance: ${distance} meters`).openPopup();
+
+                // Add geocoder control
+                const geocoder = L.Control.Geocoder.nominatim();
+                L.Control.geocoder({
+                    defaultMarkGeocode: false,
+                    geocoder: geocoder
+                }).addTo(currentMap);
+
+            }
+
+            function haversine(lat1, lon1, lat2, lon2) {
+                const R = 6371000;
+                const toRad = x => x * Math.PI / 180;
+                const dLat = toRad(lat2 - lat1);
+                const dLon = toRad(lon2 - lon1);
+                const a = Math.sin(dLat / 2) ** 2 +
+                    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
+                    Math.sin(dLon / 2) ** 2;
+                const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+                return R * c;
+            }
+
+
+
+
+            // Function to attach click event listeners to session buttons efficiently
+            function attachSessionClickListeners() {
+                document.querySelectorAll('.view-session-btn').forEach(btn => {
+                    btn.onclick = () => {
+                        const sessionId = parseInt(btn.getAttribute('data-id'));
+                        MarkAttendance(sessionId);
+                    };
+                });
+                document.querySelectorAll('.view-map-btn').forEach(btn => {
+                    btn.onclick = () => {
+                        const sessionId = parseInt(btn.getAttribute('data-id'));
+                        mapModal.classList.add('active');
+                        document.getElementById('map').innerHTML = ''; // Clear previous map
+                        showClassSessionMap(sessionId);
+                    };
+                });
+
+            }
+
+            // Fetch and update attendance data (partial UI refresh)
+            async function fetchAndUpdateAttendanceData() {
+                try {
+                    const res = await fetch(`${url}/Attendee/student/class-sessions/`, {
+                        method: 'GET',
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+                    const data = await res.json();
+                    globalData = data; // update global data cache
+
+                    // Update UI parts with new data
+                    document.getElementById('user-id').textContent = `Student ID: ${data.matricule}`;
+                    AttValue.textContent = `${data.attendance_percentage}%`;
+                    AttStatus.textContent = get_att_status(data.attendance_percentage);
+                    AttStatus.style.color = get_att_bar(data.attendance_percentage);
+                    AttTrend.textContent = `^${data.attendance_present}%`;
+                    classAtt.textContent = `${data.attendance_present}/${data.class_sessions_count}`;
+                    document.getElementById('std-school').textContent = data.school;
+                    document.getElementById('std-department').textContent = data.department;
+                    document.getElementById('std-id').textContent = data.matricule;
+
+                    // Update courses list (clear and re-add)
+                    course.innerHTML = '';
+                    data.results.forEach(list => {
+                        const courseList = document.createElement('div');
+                        courseList.className = 'course-item';
+                        courseList.innerHTML = `
           <div class="course-header">
             <div>
               <h3 class="course-name">${list.course}</h3>
@@ -1563,32 +1594,32 @@
             <div class="attendance-progress progress-green" style="width: ${list.attendance}%; background-color:${get_att_bar(list.attendance)}"></div>
           </div>
         `;
-                    course.appendChild(courseList);
-                });
+                        course.appendChild(courseList);
+                    });
 
-                // Update recent attendance
-                RecentAtt.innerHTML = '';
-                data.attendance.forEach(attendance => {
-                    const statusClass = attendance.status ? 'badge-success' : 'badge-danger';
-                    const statusText = attendance.status ? 'Present' : 'Absent';
-                    const row = document.createElement('tr');
-                    row.innerHTML = `
+                    // Update recent attendance
+                    RecentAtt.innerHTML = '';
+                    data.attendance.forEach(attendance => {
+                        const statusClass = attendance.status ? 'badge-success' : 'badge-danger';
+                        const statusText = attendance.status ? 'Present' : 'Absent';
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
           <td>${new Date(attendance.date).toLocaleString()}</td>
           <td>${attendance.class_session}</td>
           <td>${attendance.hall}</td>
           <td><span class="badge ${statusClass}">${statusText}</span></td>
         `;
-                    RecentAtt.appendChild(row);
-                });
+                        RecentAtt.appendChild(row);
+                    });
 
-                // Update sessions to mark attendance
-                listToMarkAtt.innerHTML = '';
-                if (data.class_session_att.length === 0) {
-                    listToMarkAtt.innerHTML = '<p>No Class Session at the moment...</p>';
-                } else {
-                    data.class_session_att.forEach(session => {
-                        const row = document.createElement('tr');
-                        row.innerHTML = `
+                    // Update sessions to mark attendance
+                    listToMarkAtt.innerHTML = '';
+                    if (data.class_session_att.length === 0) {
+                        listToMarkAtt.innerHTML = '<p>No Class Session at the moment...</p>';
+                    } else {
+                        data.class_session_att.forEach(session => {
+                            const row = document.createElement('tr');
+                            row.innerHTML = `
             <td>${session.course}</td>
             <td>${session.code}</td>
             <td>${new Date(session.date).toLocaleString()}</td>
@@ -1618,119 +1649,119 @@
                                 View
                             </a></button></td>
           `;
-                        listToMarkAtt.appendChild(row);
-                    });
-                }
-                attachSessionClickListeners();
-            } catch (error) {
-                console.error('Error fetching attendance data:', error);
-            }
-        }
-
-        // On window load, setup initial UI and fetch user data & attendance
-        window.addEventListener('load', async () => {
-            token = localStorage.getItem('access_token');
-            if (!token) {
-                window.location.href = 'login.html';
-                return;
-            }
-
-            try {
-                // Fetch user data
-                const users = await fetch(`${url}/Attendee/user/`, {
-                    method: 'GET',
-                    headers: {
-                        'Authorization': `Bearer ${token}`
+                            listToMarkAtt.appendChild(row);
+                        });
                     }
-                });
-                const userData = await users.json();
-                const firstName = userData.user[0].first_name;
-                const lastName = userData.user[0].last_name;
-                const userType = userData.user[0].user_type;
+                    attachSessionClickListeners();
+                } catch (error) {
+                    console.error('Error fetching attendance data:', error);
+                }
+            }
 
-                if (userType === 'lecturer') {
-                    window.location.href = 'lecturer-dashboard.html';
+            // On window load, setup initial UI and fetch user data & attendance
+            window.addEventListener('load', async () => {
+                token = localStorage.getItem('access_token');
+                if (!token) {
+                    window.location.href = 'login.html';
                     return;
                 }
 
-                username.textContent = `Welcome Back, ${firstName}`;
-                document.getElementById('user-name').textContent = `${firstName} ${lastName}`;
-                document.getElementById('user-name-abb').textContent = get_name_abb(firstName, lastName);
-
-                // Fetch & render attendance data for the first time
-                await fetchAndUpdateAttendanceData();
-
-                console.log(userData);
-            } catch (error) {
-                console.error('Error fetching user data:', error);
-            }
-        });
-
-        // Current date display
-        function updateCurrentDate() {
-            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-            const today = new Date();
-            document.getElementById('current-date').textContent = today.toLocaleDateString('en-US', options);
-        }
-        updateCurrentDate();
-
-        // Menu item click handler
-        document.querySelectorAll('.menu-item').forEach(item => {
-            item.addEventListener('click', function () {
-                document.querySelectorAll('.menu-item').forEach(i => i.classList.remove('active'));
-                this.classList.add('active');
-            });
-        });
-
-        // Scan QR code button
-        document.getElementById('scan-qr-btn').addEventListener('click', () => {
-
-        });
-
-        // Sign out button
-        document.querySelector('.sign-out-btn').addEventListener('click', async () => {
-            try {
-                localStorage.removeItem('access_token');
-                const cookieMatch = document.cookie.match(/refresh_token=([^;]*)/);
-                if (cookieMatch && cookieMatch[1]) {
-                    const refreshToken = cookieMatch[1];
-                    await fetch(`${url}/Attendee/logout/`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ refresh: refreshToken })
+                try {
+                    // Fetch user data
+                    const users = await fetch(`${url}/Attendee/user/`, {
+                        method: 'GET',
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
                     });
+                    const userData = await users.json();
+                    const firstName = userData.user[0].first_name;
+                    const lastName = userData.user[0].last_name;
+                    const userType = userData.user[0].user_type;
+
+                    if (userType === 'lecturer') {
+                        window.location.href = 'lecturer-dashboard.html';
+                        return;
+                    }
+
+                    username.textContent = `Welcome Back, ${firstName}`;
+                    document.getElementById('user-name').textContent = `${firstName} ${lastName}`;
+                    document.getElementById('user-name-abb').textContent = get_name_abb(firstName, lastName);
+
+                    // Fetch & render attendance data for the first time
+                    await fetchAndUpdateAttendanceData();
+
+                    console.log(userData);
+                } catch (error) {
+                    console.error('Error fetching user data:', error);
                 }
-                document.cookie = 'refresh_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC;';
-                window.location.href = 'login.html';
-            } catch (error) {
-                console.error(error);
+            });
+
+            // Current date display
+            function updateCurrentDate() {
+                const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+                const today = new Date();
+                document.getElementById('current-date').textContent = today.toLocaleDateString('en-US', options);
             }
-        });
+            updateCurrentDate();
 
-        // Card hover effect
-        document.querySelectorAll('.card').forEach(card => {
-            card.addEventListener('mouseenter', () => {
-                card.style.transform = 'translateY(-5px)';
-                card.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)';
+            // Menu item click handler
+            document.querySelectorAll('.menu-item').forEach(item => {
+                item.addEventListener('click', function () {
+                    document.querySelectorAll('.menu-item').forEach(i => i.classList.remove('active'));
+                    this.classList.add('active');
+                });
             });
-            card.addEventListener('mouseleave', () => {
-                card.style.transform = 'translateY(0)';
-                card.style.boxShadow = '0 1px 3px rgba(0, 0, 0, 0.1)';
+
+            // Scan QR code button
+            document.getElementById('scan-qr-btn').addEventListener('click', () => {
+
             });
-        });
+
+            // Sign out button
+            document.querySelector('.sign-out-btn').addEventListener('click', async () => {
+                try {
+                    localStorage.removeItem('access_token');
+                    const cookieMatch = document.cookie.match(/refresh_token=([^;]*)/);
+                    if (cookieMatch && cookieMatch[1]) {
+                        const refreshToken = cookieMatch[1];
+                        await fetch(`${url}/Attendee/logout/`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ refresh: refreshToken })
+                        });
+                    }
+                    document.cookie = 'refresh_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC;';
+                    window.location.href = 'login.html';
+                } catch (error) {
+                    console.error(error);
+                }
+            });
+
+            // Card hover effect
+            document.querySelectorAll('.card').forEach(card => {
+                card.addEventListener('mouseenter', () => {
+                    card.style.transform = 'translateY(-5px)';
+                    card.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)';
+                });
+                card.addEventListener('mouseleave', () => {
+                    card.style.transform = 'translateY(0)';
+                    card.style.boxShadow = '0 1px 3px rgba(0, 0, 0, 0.1)';
+                });
+            });
 
 
 
 
-        setInterval(fetchAndUpdateAttendanceData, 60000);
+            setInterval(fetchAndUpdateAttendanceData, 60000);
 
 
 
-    </script>
+        </script>
 
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+        <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
 </body>
 
