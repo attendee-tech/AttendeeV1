@@ -1442,7 +1442,7 @@
                 const studentLon = position.coords.longitude;
 
                 // Fetch session data from backend
-                const response = await fetch(`${url}/course/class-session/${sessionId}/`, {
+                const response = await fetch(`${url}/Atendee/course/class-session/${sessionId}/`, {
                     method: 'GET',
                     headers: {
                         'Authorization': `Bearer ${token}`,
