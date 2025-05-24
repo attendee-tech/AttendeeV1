@@ -918,7 +918,7 @@
                         </span>
                         Dashboard
                     </li>
-                    <li class="menu-item" >
+                    <li class="menu-item">
                         <span class="menu-item-icon">
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
                                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -1280,6 +1280,7 @@
                                     <th>Date</th>
                                     <th>Hall</th>
                                     <th>Action</th>
+                                    <th>View Map</th>
                                 </tr>
                             </thead>
                             <tbody id="mark-att">
@@ -1297,7 +1298,7 @@
     </div>
 
     <script>
-        const url='https://attendee-api.onrender.com'
+        const url = 'https://attendee-api.onrender.com'
         const addSessionBtn = document.getElementById('add-session-btn');
         const addSessionModal = document.getElementById('add-session-modal');
         const closeModalBtn = document.getElementById('close-modal-btn');
@@ -1405,6 +1406,74 @@
             });
         };
 
+        async function showClassSessionMap(sessionId) {
+            const token = localStorage.getItem('access_token');
+
+            // Get student's location
+            navigator.geolocation.getCurrentPosition(async (position) => {
+                const studentLat = position.coords.latitude;
+                const studentLon = position.coords.longitude;
+
+                // Fetch session data from backend
+                const response = await fetch(`${url}/class-session/${sessionId}/`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                    },
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    alert(data.error || "Failed to fetch session data.");
+                    return;
+                }
+
+                // Destructure session data
+                const { latitude, longitude, range_radius, title } = data.data;
+
+                // Render map
+                initMap('map', latitude, longitude, studentLat, studentLon, range_radius, 'green', title);
+            });
+        }
+
+        // The same initMap function from your HTML with an optional title
+        function initMap(containerId, lecturerLat, lecturerLon, studentLat, studentLon, radius, color = 'blue', title = 'Session') {
+            const map = L.map(containerId).setView([lecturerLat, lecturerLon], 16);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '© OpenStreetMap'
+            }).addTo(map);
+
+            L.marker([lecturerLat, lecturerLon]).addTo(map).bindPopup(`${title}<br>Lecturer Location`).openPopup();
+            L.marker([studentLat, studentLon]).addTo(map).bindPopup('Student Location');
+            L.circle([lecturerLat, lecturerLon], {
+                color: color,
+                fillColor: color === 'blue' ? '#add8e6' : '#a0f0a0',
+                fillOpacity: 0.4,
+                radius: radius
+            }).addTo(map);
+
+            const line = L.polyline([[lecturerLat, lecturerLon], [studentLat, studentLon]], { color: 'red' }).addTo(map);
+            const distance = haversine(lecturerLat, lecturerLon, studentLat, studentLon).toFixed(2);
+            line.bindPopup(`Distance: ${distance} meters`).openPopup();
+        }
+
+        function haversine(lat1, lon1, lat2, lon2) {
+            const R = 6371000;
+            const toRad = x => x * Math.PI / 180;
+            const dLat = toRad(lat2 - lat1);
+            const dLon = toRad(lon2 - lon1);
+            const a = Math.sin(dLat / 2) ** 2 +
+                Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
+                Math.sin(dLon / 2) ** 2;
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+            return R * c;
+        }
+
+
+
+
         // Function to attach click event listeners to session buttons efficiently
         function attachSessionClickListeners() {
             document.querySelectorAll('.view-session-btn').forEach(btn => {
@@ -1413,6 +1482,13 @@
                     MarkAttendance(sessionId);
                 };
             });
+            document.querySelectorAll('.view-map-btn').forEach(btn => {
+                btn.onclick = () => {
+                    const sessionId = parseInt(btn.getAttribute('data-id'));
+                    showClassSessionMap(sessionId);
+                };
+            });
+
         }
 
         // Fetch and update attendance data (partial UI refresh)
@@ -1498,7 +1574,17 @@
                   Attend
                 </button>
               </a>
+              
             </td>
+            <td>
+                <button class="mark-attendance-btn">
+                <a class="action-link view-map-btn" data-id="${session.id}">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                    <circle cx="12" cy="12" r="3"></circle>
+                                </svg>
+                                View
+                            </a></button></td>
           `;
                         listToMarkAtt.appendChild(row);
                     });
@@ -1566,7 +1652,7 @@
 
         // Scan QR code button
         document.getElementById('scan-qr-btn').addEventListener('click', () => {
-            
+
         });
 
         // Sign out button
@@ -1601,12 +1687,12 @@
             });
         });
 
-        
+
 
 
         setInterval(fetchAndUpdateAttendanceData, 60000);
 
-        
+
 
     </script>
 
