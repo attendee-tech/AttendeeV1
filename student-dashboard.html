@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Student Dashboard | Attendee</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-    
+
     <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.css" />
 
@@ -1319,6 +1319,31 @@
         <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
         <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
         <script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.js"></script>
+        <style>
+            /* Pulsing circle animation for range radius */
+            .leaflet-interactive.pulse {
+                animation: pulseEffect 2s infinite;
+                stroke-width: 2px;
+            }
+
+            @keyframes pulseEffect {
+                0% {
+                    stroke-opacity: 1;
+                    transform: scale(1);
+                }
+
+                50% {
+                    stroke-opacity: 0.5;
+                    transform: scale(1.2);
+                }
+
+                100% {
+                    stroke-opacity: 0;
+                    transform: scale(1);
+                }
+            }
+        </style>
+
 
 
         <script>
@@ -1335,7 +1360,14 @@
             const closeMapBtn = document.getElementById('close-map-btn');
 
             const mapContainer = document.getElementById('map');
-            let currentMap = null
+            let currentMap = null;
+            let currentLine = null;
+            let currentRouting = null;
+            let studentMarker = null;
+            let circle = null;
+            let distanceLine = null;
+            let rangeLabel = null;
+            let watcherId = null;
 
 
             // Toggle sidebar
@@ -1481,19 +1513,14 @@
 
             // The same initMap function from your HTML with an optional title
             // Initialize map variables
-            let currentLine = null;
-            let currentRouting = null;
+
+
+            
 
             function initMap(containerId, lecturerLat, lecturerLon, studentLat, studentLon, radius, color = 'blue', title = 'Session') {
-                // Remove old map
-                if (currentMap !== null) {
-                    currentMap.remove();
-                    currentMap = null;
-                    currentLine = null;
-                    currentRouting = null;
-                }
+                // Clear previous map
+                if (currentMap) currentMap.remove();
 
-                // Create new map
                 currentMap = L.map(containerId).setView([lecturerLat, lecturerLon], 16);
 
                 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -1501,41 +1528,79 @@
                     attribution: '© OpenStreetMap'
                 }).addTo(currentMap);
 
-                L.marker([lecturerLat, lecturerLon]).addTo(currentMap).bindPopup(`${title}<br>Lecturer Location`).openPopup();
-                L.marker([studentLat, studentLon]).addTo(currentMap).bindPopup('Student Location');
+                // Lecturer marker
+                const lecturerMarker = L.marker([lecturerLat, lecturerLon]).addTo(currentMap)
+                    .bindPopup(`${title}<br>Lecturer Location`).openPopup();
 
-                L.circle([lecturerLat, lecturerLon], {
+                // Animated circle
+                circle = L.circle([lecturerLat, lecturerLon], {
                     color: color,
                     fillColor: color === 'blue' ? '#add8e6' : '#a0f0a0',
                     fillOpacity: 0.4,
-                    radius: radius
-                }).addTo(currentMap).bindPopup(`Range: ${radius} meters`).openPopup();
+                    radius: radius,
+                    className: 'pulse'
+                }).addTo(currentMap);
 
+                circle.bindPopup(`Range Radius: ${radius} meters`);
+
+                // Range label marker (initial position, will update)
+                const labelLatLng = L.latLng(
+                    lecturerLat + (radius / 111320),
+                    lecturerLon
+                );
+
+                rangeLabel = L.marker(labelLatLng, {
+                    icon: L.divIcon({
+                        className: 'range-label',
+                        html: `<div style="background: white; padding: 2px 6px; border-radius: 4px; border: 1px solid #888; font-size: 12px;">
+                        ${radius} m radius
+                   </div>`
+                    })
+                }).addTo(currentMap);
+
+                // Add scale
                 L.control.scale().addTo(currentMap);
 
-                // Routing
-                if (L.Routing && L.Routing.control) {
-                    currentRouting = L.Routing.control({
-                        waypoints: [
-                            L.latLng(lecturerLat, lecturerLon),
-                            L.latLng(studentLat, studentLon)
-                        ],
-                        routeWhileDragging: false,
-                        geocoder: L.Control.Geocoder ? L.Control.Geocoder.nominatim() : undefined
-                    }).addTo(currentMap);
-                }
+                // Watch student location
+                if (watcherId !== null) navigator.geolocation.clearWatch(watcherId);
 
-                // Draw line and show distance
-                currentLine = L.polyline([[lecturerLat, lecturerLon], [studentLat, studentLon]], { color: 'red' }).addTo(currentMap);
-                const distance = haversine(lecturerLat, lecturerLon, studentLat, studentLon).toFixed(2);
-                currentLine.bindPopup(`Distance: ${distance} meters`).openPopup();
+                watcherId = navigator.geolocation.watchPosition(position => {
+                    const studentLat = position.coords.latitude;
+                    const studentLon = position.coords.longitude;
 
-                // Fit map bounds to show both markers and circle
-                const bounds = L.latLngBounds(
-                    [lecturerLat, lecturerLon],
-                    [studentLat, studentLon]
-                ).pad(0.1); // Add padding to fit circle
-                currentMap.fitBounds(bounds);
+                    const dist = haversine(lecturerLat, lecturerLon, studentLat, studentLon).toFixed(2);
+
+                    // Add or update student marker
+                    if (!studentMarker) {
+                        studentMarker = L.marker([studentLat, studentLon]).addTo(currentMap)
+                            .bindPopup(`Student Location<br>Distance to lecturer: ${dist} m`);
+                    } else {
+                        studentMarker.setLatLng([studentLat, studentLon])
+                            .setPopupContent(`Student Location<br>Distance to lecturer: ${dist} m`);
+                    }
+
+                    // Update red line
+                    if (distanceLine) {
+                        distanceLine.setLatLngs([[lecturerLat, lecturerLon], [studentLat, studentLon]]);
+                    } else {
+                        distanceLine = L.polyline([[lecturerLat, lecturerLon], [studentLat, studentLon]], { color: 'red' }).addTo(currentMap);
+                    }
+
+                    distanceLine.bindPopup(`Straight Line Distance: ${dist} meters`);
+
+                    // Update map bounds
+                    const bounds = L.latLngBounds(
+                        [lecturerLat, lecturerLon],
+                        [studentLat, studentLon]
+                    ).pad(0.2);
+                    currentMap.fitBounds(bounds);
+
+                }, error => {
+                    alert("Failed to track your location.");
+                }, {
+                    enableHighAccuracy: true,
+                    maximumAge: 0
+                });
 
                 // Add geocoder
                 if (L.Control.geocoder) {
@@ -1546,6 +1611,7 @@
                 }
             }
 
+            // Haversine formula in JavaScript
             function haversine(lat1, lon1, lat2, lon2) {
                 const R = 6371000;
                 const toRad = x => x * Math.PI / 180;
