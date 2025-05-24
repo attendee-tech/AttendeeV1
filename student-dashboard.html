@@ -1478,6 +1478,12 @@
 
             // The same initMap function from your HTML with an optional title
             function initMap(containerId, lecturerLat, lecturerLon, studentLat, studentLon, radius, color = 'blue', title = 'Session') {
+
+                // Destroy previous map if it exists
+                if (currentMap !== null) {
+                    currentMap.remove();  // Clean up the old map instance
+                }
+                
                 currentMap = L.map(containerId).setView([lecturerLat, lecturerLon], 16);
                 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                     maxZoom: 19,
