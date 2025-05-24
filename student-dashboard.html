@@ -1465,7 +1465,7 @@
             async function showClassSessionMap(sessionId) {
                 const token = localStorage.getItem('access_token');
 
-                alert("Fetching class session map..., turn on high-accuracy mode on Android (Settings > Location > Mode).Avoid battery saver or airplane mode during use.");
+                alert("Fetching class session map..., turn on high-accuracy mode on Android (Settings > Location > Mode). Avoid battery saver or airplane mode during use.");
                 // Hide the modal
                 mapModal.classList.add('active');
                 // Clear previous map if exists
@@ -1475,7 +1475,7 @@
                 }
                 // Clear previous map container
                 mapContainer.innerHTML = '';
-                alert("Fetching student's location...");
+                alert("Fetching Your location...");
                 // Get token from local storage
                 if (!token) {
                     alert("You need to log in first.");
@@ -1627,7 +1627,7 @@
                             });
                             break;
                         default:
-                            alert("Location error: " + error.message);
+                            alert("Location error: " + error.message + ". Please try again or Refresh your Dashboard page.");
                     }
                 }
                     , {
