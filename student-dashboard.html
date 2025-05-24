@@ -5,6 +5,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Student Dashboard | Attendee</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    
+
     <style>
         /* Reset and Base Styles */
         * {
@@ -1296,6 +1299,24 @@
             </div>
         </div>
     </div>
+    <div class="modal-backdrop" id="map-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">Class Session Map</h3>
+                <button class="modal-close" id="close-modal-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="map" style="height: 400px;"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="cancel">Close</button>
+            </div>
+        </div>
+
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
+    <script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.js"></script>
+    
 
     <script>
         const url = 'https://attendee-api.onrender.com'
@@ -1306,6 +1327,12 @@
         const menuLogo = document.getElementById('menu-logo');
         const SideLogo = document.getElementById('side-logo');
         const sideBar = document.getElementById('sidebar');
+        const mapModal = document.getElementById('map-modal');
+        const closeMapModalBtn = document.getElementById('close-map-modal-btn');
+        const closeMapBtn = document.getElementById('close-map-btn');
+        
+        const mapContainer = document.getElementById('map');
+        
 
         // Toggle sidebar
         menuLogo.addEventListener('click', () => {
@@ -1423,6 +1450,7 @@
                 });
 
                 const data = await response.json();
+                const sessionData = data.data[0];
 
                 if (!response.ok) {
                     alert(data.error || "Failed to fetch session data.");
@@ -1430,7 +1458,7 @@
                 }
 
                 // Destructure session data
-                const { latitude, longitude, range_radius, title } = data.data;
+                const { latitude, longitude, range_radius, title } = sessionData;
 
                 // Render map
                 initMap('map', latitude, longitude, studentLat, studentLon, range_radius, 'green', title);
@@ -1698,6 +1726,7 @@
 
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
 </body>
 
