@@ -1465,6 +1465,29 @@
             async function showClassSessionMap(sessionId) {
                 const token = localStorage.getItem('access_token');
 
+                alert("Fetching class session map..., turn on high-accuracy mode on Android (Settings > Location > Mode).Avoid battery saver or airplane mode during use.");
+                // Hide the modal
+                mapModal.classList.add('active');
+                // Clear previous map if exists
+                if (currentMap !== null) {
+                    currentMap.remove();
+                    currentMap = null;
+                }
+                // Clear previous map container
+                mapContainer.innerHTML = '';
+                alert("Fetching student's location...");
+                // Get token from local storage
+                if (!token) {
+                    alert("You need to log in first.");
+                    return;
+                }
+                // Check if geolocation is supported
+                if (!navigator.geolocation) {
+                    alert("Geolocation is not supported by your browser.");
+                    return;
+                }
+
+
                 // Get student's location
                 navigator.geolocation.getCurrentPosition(async (position) => {
                     const studentLat = position.coords.latitude;
@@ -1500,7 +1523,7 @@
 
 
 
-            
+
             let currentCircle = null;
             let currentStudentMarker = null;
             let currentDistancePopup = null;
@@ -1588,13 +1611,30 @@
                             .openOn(currentMap);
                     }
 
-                }, (error) => {
-                    alert("Unable to track location: " + error.message);
-                }, {
-                    enableHighAccuracy: true,
-                    maximumAge: 1000,
-                    timeout: 10000
-                });
+                }, function errorCallback(error) {
+                    switch (error.code) {
+                        case error.PERMISSION_DENIED:
+                            alert("Please allow location access for this feature to work.");
+                            break;
+                        case error.POSITION_UNAVAILABLE:
+                            alert("Location unavailable. Try going outdoors or check signal.");
+                            break;
+                        case error.TIMEOUT:
+                            alert("Location request timed out. Retrying...");
+                            navigator.geolocation.getCurrentPosition(successCallback, errorCallback, {
+                                enableHighAccuracy: true,
+                                timeout: 20000
+                            });
+                            break;
+                        default:
+                            alert("Location error: " + error.message);
+                    }
+                }
+                    , {
+                        enableHighAccuracy: true,
+                        maximumAge: 0,
+                        timeout: 30000
+                    });
             }
 
 
