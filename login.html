@@ -501,82 +501,88 @@
 
 
         // Form submission
-        document.getElementById('loginForm').addEventListener('submit', async function (e) {
-            e.preventDefault();
-            const message=document.getElementById('message')
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
-            const loginBtn = document.getElementById('loginButton');
-            loginBtn.classList.add('pulse');
-            const originalText = loginBtn.textContent;
-            loginBtn.textContent = 'Signing in...';
+        
+document.getElementById('loginForm').addEventListener('submit', async function (e) {
+    e.preventDefault();
 
-            if (!username || !password) {
-                alert('Please enter both username and password');
-                return;
-            }
+    const message = document.getElementById('message');
+    const username = document.getElementById('username').value;
+    const password = document.getElementById('password').value;
+    const loginBtn = document.getElementById('loginButton');
+    const originalText = loginBtn.textContent;
 
-            try {
-                const respone = await fetch(`${url}/Attendee/login/`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ username, password })
-                })
-                const data = await respone.json()
-                if (respone.ok) {
-                    
-                    if (data.tokens.access && data.tokens.refresh) {
-                        localStorage.setItem('access_token', data.tokens.access)
-                        document.cookie = `refresh_token=${data.tokens.refresh}: HttpOnly; Secure`;
-                        console.log(data.tokens.access)
-                        console.log(data.tokens.refresh)
-                        message.textContent=data.message
-                        message.style.color='#10b981'
-                        const users = await fetch(`${url}/Attendee/user/`, {
-                            method: 'GET',
-                            headers: {
-                                'Authorization': `Bearer ${data.tokens.access}`
-                            }
-                        });
-                        const userData = await users.json();
-                        const userType = userData.user[0].user_type;
-                        if (userType === 'student') {
-                            window.location.href = 'student-dashboard.html'
-                        }
-                        else if (userType === 'lecturer') {
-                            window.location.href = 'lecturer-dashboard.html'
-                        }
-                        else {
-                            console.log('invalid user types')
-                            console.log(userType)
-                            console.log(userData)
-                        }
-                    }
-                    else {
-                        console.log('Error: not tokens')
-                    }
-                }
-                
-                else {
-                     message.textContent=data.error
-                    console.log('Error:', data.error)
-                }
-            }
-            catch (error) {
-               
-                console.log(error)
-            }finally{
-                
-                
-            }
-            
-            
+    // Retrieve device ID from local storage
+    const device_id = localStorage.getItem('device_id');
+    if (!device_id) {
+        message.textContent = 'Device ID not found. You may have cleared your cache. Please contact the administrator to get a new device ID.';
+        message.style.color = 'red';
+        return;
+    }
 
-            
+    loginBtn.classList.add('pulse');
+    loginBtn.textContent = 'Signing in...';
 
+    if (!username || !password) {
+        alert('Please enter both username and password');
+        loginBtn.textContent = originalText;
+        loginBtn.classList.remove('pulse');
+        return;
+    }
+
+    try {
+        const response = await fetch(`${url}/Attendee/login/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ username, password, device_id })  // Include device_id
         });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            if (data.tokens.access && data.tokens.refresh) {
+                localStorage.setItem('access_token', data.tokens.access);
+                document.cookie = `refresh_token=${data.tokens.refresh}; HttpOnly; Secure`;
+
+                message.textContent = data.message;
+                message.style.color = '#10b981';
+
+                const users = await fetch(`${url}/Attendee/user/`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${data.tokens.access}`
+                    }
+                });
+
+                const userData = await users.json();
+                const userType = userData.user[0].user_type;
+
+                if (userType === 'student') {
+                    window.location.href = 'student-dashboard.html';
+                } else if (userType === 'lecturer') {
+                    window.location.href = 'lecturer-dashboard.html';
+                } else {
+                    console.log('Invalid user type:', userType);
+                }
+            } else {
+                console.log('Error: Tokens not returned');
+            }
+        } else {
+            message.textContent = data.error || 'Login failed';
+            message.style.color = 'red';
+            console.log('Error:', data.error);
+        }
+    } catch (error) {
+        console.log('Network or server error:', error);
+        message.textContent = 'An error occurred. Please try again.';
+        message.style.color = 'red';
+    } finally {
+        loginBtn.textContent = originalText;
+        loginBtn.classList.remove('pulse');
+    }
+});
+
 
         // Add focus effects for better UX
         const inputElements = document.querySelectorAll('input');
