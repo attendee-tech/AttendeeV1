@@ -1325,8 +1325,6 @@
                 animation: pulseEffect 2s infinite;
                 stroke-width: 2px;
             }
-
-            
         </style>
 
 
@@ -1500,101 +1498,105 @@
             // Initialize map variables
 
 
+
+
             
+            let currentCircle = null;
+            let currentStudentMarker = null;
+            let currentDistancePopup = null;
+            let watchId = null;
 
-            function initMap(containerId, lecturerLat, lecturerLon, studentLat, studentLon, radius, color = 'blue', title = 'Session') {
-                // Clear previous map
-                if (currentMap) currentMap.remove();
+            function initMapLive(containerId, lecturerLat, lecturerLon, radius, title = 'Session') {
+                // Remove previous map if exists
+                if (currentMap !== null) {
+                    currentMap.remove();
+                    currentMap = null;
+                    currentLine = null;
+                    currentCircle = null;
+                    currentStudentMarker = null;
+                    currentDistancePopup = null;
+                    if (watchId) {
+                        navigator.geolocation.clearWatch(watchId);
+                        watchId = null;
+                    }
+                }
 
+                // Initialize map
                 currentMap = L.map(containerId).setView([lecturerLat, lecturerLon], 16);
-
                 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                     maxZoom: 19,
                     attribution: '© OpenStreetMap'
                 }).addTo(currentMap);
 
-                // Lecturer marker
-                const lecturerMarker = L.marker([lecturerLat, lecturerLon]).addTo(currentMap)
-                    .bindPopup(`${title}<br>Lecturer Location`).openPopup();
+                // Add static lecturer marker
+                L.marker([lecturerLat, lecturerLon]).addTo(currentMap).bindPopup(`${title}<br>Lecturer Location`).openPopup();
 
-                // Animated circle
-                circle = L.circle([lecturerLat, lecturerLon], {
-                    color: color,
-                    fillColor: color === 'blue' ? '#add8e6' : '#a0f0a0',
-                    fillOpacity: 0.4,
-                    radius: radius,
-                    className: 'pulse'
-                }).addTo(currentMap);
-
-                circle.bindPopup(`Range Radius: ${radius} meters`);
-
-                // Range label marker (initial position, will update)
-                const labelLatLng = L.latLng(
-                    lecturerLat + (radius / 111320),
-                    lecturerLon
-                );
-
-                rangeLabel = L.marker(labelLatLng, {
-                    icon: L.divIcon({
-                        className: 'range-label',
-                        html: `<div style="background: white; padding: 2px 6px; border-radius: 4px; border: 1px solid #888; font-size: 12px;">
-                        ${radius} m radius
-                   </div>`
-                    })
-                }).addTo(currentMap);
-
-                // Add scale
+                // Add scale and geocoder
                 L.control.scale().addTo(currentMap);
-
-                // Watch student location
-                if (watcherId !== null) navigator.geolocation.clearWatch(watcherId);
-
-                watcherId = navigator.geolocation.watchPosition(position => {
-                    const studentLat = position.coords.latitude;
-                    const studentLon = position.coords.longitude;
-
-                    const dist = haversine(lecturerLat, lecturerLon, studentLat, studentLon).toFixed(2);
-
-                    // Add or update student marker
-                    if (!studentMarker) {
-                        studentMarker = L.marker([studentLat, studentLon]).addTo(currentMap)
-                            .bindPopup(`Student Location<br>Distance to lecturer: ${dist} m`);
-                    } else {
-                        studentMarker.setLatLng([studentLat, studentLon])
-                            .setPopupContent(`Student Location<br>Distance to lecturer: ${dist} m`);
-                    }
-
-                    // Update red line
-                    if (distanceLine) {
-                        distanceLine.setLatLngs([[lecturerLat, lecturerLon], [studentLat, studentLon]]);
-                    } else {
-                        distanceLine = L.polyline([[lecturerLat, lecturerLon], [studentLat, studentLon]], { color: 'red' }).addTo(currentMap);
-                    }
-
-                    distanceLine.bindPopup(`Straight Line Distance: ${dist} meters`);
-
-                    // Update map bounds
-                    const bounds = L.latLngBounds(
-                        [lecturerLat, lecturerLon],
-                        [studentLat, studentLon]
-                    ).pad(0.2);
-                    currentMap.fitBounds(bounds);
-
-                }, error => {
-                    alert("Failed to track your location.");
-                }, {
-                    enableHighAccuracy: true,
-                    maximumAge: 0
-                });
-
-                // Add geocoder
                 if (L.Control.geocoder) {
                     L.Control.geocoder({
                         defaultMarkGeocode: false,
                         geocoder: L.Control.Geocoder.nominatim()
                     }).addTo(currentMap);
                 }
+
+                // Start watching student location
+                watchId = navigator.geolocation.watchPosition((position) => {
+                    const studentLat = position.coords.latitude;
+                    const studentLon = position.coords.longitude;
+
+                    const distance = haversine(lecturerLat, lecturerLon, studentLat, studentLon);
+                    const inside = distance <= radius;
+                    const color = inside ? 'green' : 'red';
+                    const fill = inside ? '#a0f0a0' : '#f0a0a0';
+
+                    // Update student marker
+                    if (currentStudentMarker) {
+                        currentStudentMarker.setLatLng([studentLat, studentLon]);
+                    } else {
+                        currentStudentMarker = L.marker([studentLat, studentLon]).addTo(currentMap).bindPopup('Student Location');
+                    }
+
+                    // Update line
+                    if (currentLine) {
+                        currentLine.setLatLngs([[lecturerLat, lecturerLon], [studentLat, studentLon]]);
+                    } else {
+                        currentLine = L.polyline([[lecturerLat, lecturerLon], [studentLat, studentLon]], { color: 'blue' }).addTo(currentMap);
+                    }
+
+                    // Update range circle
+                    if (currentCircle) {
+                        currentCircle.setStyle({ color, fillColor: fill });
+                    } else {
+                        currentCircle = L.circle([lecturerLat, lecturerLon], {
+                            color,
+                            fillColor: fill,
+                            fillOpacity: 0.3,
+                            radius
+                        }).addTo(currentMap);
+                    }
+
+                    // Update popup
+                    const message = `Distance: ${distance.toFixed(2)} meters<br>Status: ${inside ? '🟢 Inside Range' : '🔴 Outside Range'}`;
+                    if (currentDistancePopup) {
+                        currentDistancePopup.setLatLng([(lecturerLat + studentLat) / 2, (lecturerLon + studentLon) / 2]);
+                        currentDistancePopup.setContent(message);
+                    } else {
+                        currentDistancePopup = L.popup()
+                            .setLatLng([(lecturerLat + studentLat) / 2, (lecturerLon + studentLon) / 2])
+                            .setContent(message)
+                            .openOn(currentMap);
+                    }
+
+                }, (error) => {
+                    alert("Unable to track location: " + error.message);
+                }, {
+                    enableHighAccuracy: true,
+                    maximumAge: 1000,
+                    timeout: 10000
+                });
             }
+
 
             // Haversine formula in JavaScript
             function haversine(lat1, lon1, lat2, lon2) {
