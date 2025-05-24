@@ -1530,6 +1530,13 @@
                 const distance = haversine(lecturerLat, lecturerLon, studentLat, studentLon).toFixed(2);
                 currentLine.bindPopup(`Distance: ${distance} meters`).openPopup();
 
+                // Fit map bounds to show both markers and circle
+                const bounds = L.latLngBounds(
+                    [lecturerLat, lecturerLon],
+                    [studentLat, studentLon]
+                ).pad(0.1); // Add padding to fit circle
+                currentMap.fitBounds(bounds);
+
                 // Add geocoder
                 if (L.Control.geocoder) {
                     L.Control.geocoder({
