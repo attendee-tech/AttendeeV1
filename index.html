@@ -1,6 +1,6 @@
-
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -18,6 +18,7 @@
             background-color: #f3f4f6;
             color: #1f2937;
             overflow-x: hidden;
+            height: 100vh;
         }
 
         /* Header Styles */
@@ -747,7 +748,8 @@
                 gap: 20px;
             }
         }
-         img{
+
+        img {
             height: 30px;
             width: 30px;
             border-radius: 30px;
@@ -756,23 +758,57 @@
         @media (max-width: 640px) {
             .nav-links {
                 display: none;
+
             }
+
+            .nav-links.mobile {
+                display: block;
+                background-color: white;
+                z-index: 9999;
+                height: 100%;
+                width: 80%;
+                position: fixed;
+                padding: 20px;
+                align-items: center;
+                transition: ease-in-out 0.5s;
+                left: -500px;
+                opacity: 0.95;
+                background-color: #ffffff;
+
+
+                box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+
+
+
+                a,
+                button {
+                    display: block;
+                    margin: 50px;
+                    align-self: center;
+                }
+            }
+
+
+
 
             .mobile-menu-btn {
                 display: block;
             }
+
 
             .hero-buttons {
                 flex-direction: column;
                 gap: 16px;
             }
 
-            .primary-btn, .secondary-btn {
+            .primary-btn,
+            .secondary-btn {
                 width: 100%;
             }
         }
     </style>
 </head>
+
 <body>
     <!-- Header -->
     <header class="header">
@@ -787,14 +823,16 @@
                 </div>
             </div>
             <nav class="nav-links">
-                <a href="#" class="nav-link active">Home</a>
+                <a href="#home" class="nav-link">Home</a>
                 <a href="#features" class="nav-link">Features</a>
                 <a href="#how-it-works" class="nav-link">How It Works</a>
                 <a href="#testimonials" class="nav-link">Testimonials</a>
-                <button class="login-btn"  onclick="window.location.href='login.html'">Login</button>
+                <button class="login-btn" onclick="window.location.href='login.html'">Login</button>
             </nav>
-            <button class="mobile-menu-btn">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+
+            <button class="mobile-menu-btn" id="mobile-btn">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <line x1="3" y1="12" x2="21" y2="12"></line>
                     <line x1="3" y1="6" x2="21" y2="6"></line>
                     <line x1="3" y1="18" x2="21" y2="18"></line>
@@ -803,11 +841,47 @@
         </div>
     </header>
 
+    <nav class="nav-links mobile" id="mobile-nav">
+        <div class="logo-container">
+            <div class="logo">
+                <img src="assets/Attendee logo.jpg" alt="">
+            </div>
+            <div class="logo-text">
+                <h1>Attendee</h1>
+
+            </div>
+        </div>
+
+        <a href="#home" class="nav-link">Home</a>
+        <a href="#features" class="nav-link">Features</a>
+        <a href="#how-it-works" class="nav-link">How It Works</a>
+        <a href="#testimonials" class="nav-link">Testimonials</a>
+        <button class="login-btn" onclick="window.location.href='login.html'">Login</button>
+    </nav>
+    <script>
+        const mobileNav = document.getElementById('mobile-nav');
+        const mobileBtn = document.getElementById('mobile-btn')
+        const toggle = mobileNav.style.left = '-500px';
+        mobileBtn.addEventListener('click', () => {
+            if (mobileNav.style.left === '-500px') {
+                mobileNav.style.left = '0px';
+            } else {
+                mobileNav.style.left = '-500px';
+            }
+
+        })
+        
+
+
+
+    </script>
+
     <!-- Hero Section -->
-    <section class="hero">
+    <section class="hero" id="home">
         <div class="hero-container">
             <h1>Streamline Student Attendance Tracking</h1>
-            <p>Attendee helps educational institutions efficiently manage student attendance, improve accountability, and enhance academic performance. </p>
+            <p>Attendee helps educational institutions efficiently manage student attendance, improve accountability,
+                and enhance academic performance. </p>
             <div class="hero-buttons">
                 <button class="primary-btn" onclick="window.location.href='signup.html'">Get Started</button>
                 <a href="#features"><button class="secondary-btn">Learn More</button></a>
@@ -820,12 +894,14 @@
         <div class="section-container">
             <div class="section-header">
                 <h2 class="section-title">Powerful Features</h2>
-                <p class="section-subtitle">Attendee offers a comprehensive set of tools designed to simplify attendance management and improve student engagement.</p>
+                <p class="section-subtitle">Attendee offers a comprehensive set of tools designed to simplify attendance
+                    management and improve student engagement.</p>
             </div>
             <div class="features-grid">
                 <div class="feature-card">
                     <div class="feature-icon">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
                             <line x1="16" y1="2" x2="16" y2="6"></line>
                             <line x1="8" y1="2" x2="8" y2="6"></line>
@@ -833,20 +909,24 @@
                         </svg>
                     </div>
                     <h3 class="feature-title">Real-time Attendance Tracking</h3>
-                    <p class="feature-description">Record and monitor student attendance in real-time with our intuitive digital check-in system. No more paper registers or manual data entry.</p>
+                    <p class="feature-description">Record and monitor student attendance in real-time with our intuitive
+                        digital check-in system. No more paper registers or manual data entry.</p>
                 </div>
                 <div class="feature-card">
                     <div class="feature-icon">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
                         </svg>
                     </div>
                     <h3 class="feature-title">Automated Notifications</h3>
-                    <p class="feature-description">Send automatic alerts to students and Lecturer about absences, ensuring timely communication and reducing administrative workload.</p>
+                    <p class="feature-description">Send automatic alerts to students and Lecturer about absences,
+                        ensuring timely communication and reducing administrative workload.</p>
                 </div>
                 <div class="feature-card">
                     <div class="feature-icon">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
                             <polyline points="14 2 14 8 20 8"></polyline>
                             <line x1="16" y1="13" x2="8" y2="13"></line>
@@ -855,36 +935,45 @@
                         </svg>
                     </div>
                     <h3 class="feature-title">Comprehensive Reports</h3>
-                    <p class="feature-description">Generate detailed attendance reports by student, class, or date range. Identify patterns and take proactive measures to improve attendance rates.</p>
+                    <p class="feature-description">Generate detailed attendance reports by student, class, or date
+                        range. Identify patterns and take proactive measures to improve attendance rates.</p>
                 </div>
                 <div class="feature-card">
                     <div class="feature-icon">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
                             <circle cx="12" cy="7" r="4"></circle>
                         </svg>
                     </div>
                     <h3 class="feature-title">Student Profiles</h3>
-                    <p class="feature-description">Access comprehensive student profiles with attendance history, academic performance, and contact information all in one place.</p>
+                    <p class="feature-description">Access comprehensive student profiles with attendance history,
+                        academic performance, and contact information all in one place.</p>
                 </div>
                 <div class="feature-card">
                     <div class="feature-icon">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <circle cx="12" cy="12" r="3"></circle>
-                            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                            <path
+                                d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z">
+                            </path>
                         </svg>
                     </div>
                     <h3 class="feature-title">Customizable Settings</h3>
-                    <p class="feature-description">Tailor the system to your institution's specific needs with flexible attendance policies, grading scales, and notification preferences.</p>
+                    <p class="feature-description">Tailor the system to your institution's specific needs with flexible
+                        attendance policies, grading scales, and notification preferences.</p>
                 </div>
                 <div class="feature-card">
                     <div class="feature-icon">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
                         </svg>
                     </div>
                     <h3 class="feature-title">Secure Data Management</h3>
-                    <p class="feature-description">Keep student information safe with our robust security measures, role-based access controls, and regular data backups.</p>
+                    <p class="feature-description">Keep student information safe with our robust security measures,
+                        role-based access controls, and regular data backups.</p>
                 </div>
             </div>
         </div>
@@ -895,28 +984,33 @@
         <div class="section-container">
             <div class="section-header">
                 <h2 class="section-title">How It Works</h2>
-                <p class="section-subtitle">Getting started with Attendee is simple. Follow these steps to transform your attendance management process.</p>
+                <p class="section-subtitle">Getting started with Attendee is simple. Follow these steps to transform
+                    your attendance management process.</p>
             </div>
             <div class="steps">
                 <div class="step">
                     <div class="step-number">1</div>
                     <h3 class="step-title">Create Your Account</h3>
-                    <p class="step-description">Sign up for Attendee and set up your institution's profile with departments, courses, and user roles.</p>
+                    <p class="step-description">Sign up for Attendee and set up your institution's profile with
+                        departments, courses, and user roles.</p>
                 </div>
                 <div class="step">
                     <div class="step-number">2</div>
                     <h3 class="step-title">Import Student Data</h3>
-                    <p class="step-description">Easily import student information from existing systems or add students manually to the platform.</p>
+                    <p class="step-description">Easily import student information from existing systems or add students
+                        manually to the platform.</p>
                 </div>
                 <div class="step">
                     <div class="step-number">3</div>
                     <h3 class="step-title">Set Up Classes</h3>
-                    <p class="step-description">Create class schedules, assign instructors, and define attendance policies for each course.</p>
+                    <p class="step-description">Create class schedules, assign instructors, and define attendance
+                        policies for each course.</p>
                 </div>
                 <div class="step">
                     <div class="step-number">4</div>
                     <h3 class="step-title">Start Tracking</h3>
-                    <p class="step-description">Begin recording attendance in real-time and access insights through the intuitive dashboard.</p>
+                    <p class="step-description">Begin recording attendance in real-time and access insights through the
+                        intuitive dashboard.</p>
                 </div>
             </div>
         </div>
@@ -927,11 +1021,14 @@
         <div class="section-container">
             <div class="section-header">
                 <h2 class="section-title">What Our Users Say</h2>
-                <p class="section-subtitle">Hear from educators and administrators who have transformed their attendance management with Attendee.</p>
+                <p class="section-subtitle">Hear from educators and administrators who have transformed their attendance
+                    management with Attendee.</p>
             </div>
             <div class="testimonials-container">
                 <div class="testimonial-card">
-                    <p class="testimonial-text">"Attendee has revolutionized how we handle attendance at our university. The automated notifications have significantly reduced our absenteeism rate, and the reporting features provide valuable insights for academic planning."</p>
+                    <p class="testimonial-text">"Attendee has revolutionized how we handle attendance at our university.
+                        The automated notifications have significantly reduced our absenteeism rate, and the reporting
+                        features provide valuable insights for academic planning."</p>
                     <div class="testimonial-author">
                         <div class="author-avatar">DR</div>
                         <div class="author-info">
@@ -941,7 +1038,9 @@
                     </div>
                 </div>
                 <div class="testimonial-card">
-                    <p class="testimonial-text">"As a high school principal, I needed a solution that could handle our complex scheduling and large student body. Attendee not only met these requirements but exceeded our expectations with its user-friendly interface and robust features."</p>
+                    <p class="testimonial-text">"As a high school principal, I needed a solution that could handle our
+                        complex scheduling and large student body. Attendee not only met these requirements but exceeded
+                        our expectations with its user-friendly interface and robust features."</p>
                     <div class="testimonial-author">
                         <div class="author-avatar">JT</div>
                         <div class="author-info">
@@ -951,7 +1050,9 @@
                     </div>
                 </div>
                 <div class="testimonial-card">
-                    <p class="testimonial-text">"The detailed reporting and analytics have been game-changers for our institution. We can now identify attendance patterns and intervene early when students start missing classes, leading to improved retention rates."</p>
+                    <p class="testimonial-text">"The detailed reporting and analytics have been game-changers for our
+                        institution. We can now identify attendance patterns and intervene early when students start
+                        missing classes, leading to improved retention rates."</p>
                     <div class="testimonial-author">
                         <div class="author-avatar">SP</div>
                         <div class="author-info">
@@ -968,9 +1069,11 @@
     <section class="cta">
         <div class="section-container">
             <h2 class="cta-title">Ready to Transform Your Attendance Management?</h2>
-            <p class="cta-subtitle">Join thousands of educational institutions that trust Attendee for their attendance tracking needs.</p>
+            <p class="cta-subtitle">Join thousands of educational institutions that trust Attendee for their attendance
+                tracking needs.</p>
             <div class="hero-buttons">
-                <button class="primary-btn" id="cta-get-started-btn" onclick="window.location.href='signup.html'">Get Started for Free</button>
+                <button class="primary-btn" id="cta-get-started-btn" onclick="window.location.href='signup.html'">Get
+                    Started for Free</button>
                 <button class="secondary-btn">Request a Demo</button>
             </div>
         </div>
@@ -987,27 +1090,41 @@
                         </div>
                         <div class="footer-logo-text">Attendee</div>
                     </div>
-                    <p class="footer-description">Attendee is a comprehensive attendance management system designed for educational institutions of all sizes, from K-12 schools to universities. (currently for The University of Bamenda)</p>
+                    <p class="footer-description">Attendee is a comprehensive attendance management system designed for
+                        educational institutions of all sizes, from K-12 schools to universities. (currently for The
+                        University of Bamenda)</p>
                     <div class="social-links">
                         <a href="#" class="social-link">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
                                 <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path>
                             </svg>
                         </a>
                         <a href="#" class="social-link">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"></path>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <path
+                                    d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z">
+                                </path>
                             </svg>
                         </a>
                         <a href="#" class="social-link">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <path
+                                    d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z">
+                                </path>
                                 <rect x="2" y="9" width="4" height="12"></rect>
                                 <circle cx="4" cy="4" r="2"></circle>
                             </svg>
                         </a>
                         <a href="#" class="social-link">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
                                 <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
                                 <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
                                 <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
@@ -1085,18 +1202,28 @@
                     </div>
                     <div class="social-login">
                         <button type="button" class="social-login-btn">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
                                 <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path>
                             </svg>
                         </button>
                         <button type="button" class="social-login-btn">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"></path>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <path
+                                    d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z">
+                                </path>
                             </svg>
                         </button>
                         <button type="button" class="social-login-btn">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <path
+                                    d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22">
+                                </path>
                             </svg>
                         </button>
                     </div>
@@ -1108,28 +1235,28 @@
 
     <script>
 
-        const url='https://attendee-api.onrender.com'
-        window.addEventListener('load', async()=>{
+        const url = 'https://attendee-api.onrender.com'
+        window.addEventListener('load', async () => {
             const token = localStorage.getItem('access_token')
             const users = await fetch(`${url}/Attendee/user/`, {
-                            method: 'GET',
-                            headers: {
-                                'Authorization': `Bearer ${token}`
-                            }
-                        });
-                        const userData = await users.json();
-                        const userType = userData.user[0].user_type;
-                        if (userType === 'student') {
-                            window.location.href = 'student-dashboard.html'
-                        }
-                        else if (userType === 'lecturer') {
-                            window.location.href = 'lecturer-dashboard.html'
-                        }
-                        else {
-                            console.log('invalid user types')
-                            console.log(userType)
-                            console.log(userData)
-                        }
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            const userData = await users.json();
+            const userType = userData.user[0].user_type;
+            if (userType === 'student') {
+                window.location.href = 'student-dashboard.html'
+            }
+            else if (userType === 'lecturer') {
+                window.location.href = 'lecturer-dashboard.html'
+            }
+            else {
+                console.log('invalid user types')
+                console.log(userType)
+                console.log(userData)
+            }
         })
 
         // Current date display
@@ -1143,10 +1270,10 @@
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function (e) {
                 e.preventDefault();
-                
+
                 const targetId = this.getAttribute('href');
                 if (targetId === '#') return;
-                
+
                 const targetElement = document.querySelector(targetId);
                 if (targetElement) {
                     window.scrollTo({
@@ -1181,22 +1308,22 @@
         closeModalBtn.addEventListener('click', closeModal);
 
         // Close modal when clicking outside
-        window.addEventListener('click', function(event) {
+        window.addEventListener('click', function (event) {
             if (event.target === modal) {
                 closeModal();
             }
         });
 
         // Form submission
-        loginSubmitBtn.addEventListener('click', function() {
+        loginSubmitBtn.addEventListener('click', function () {
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
-            
+
             if (!email || !password) {
                 alert('Please enter both email and password.');
                 return;
             }
-            
+
             // Redirect to profile page (in a real app, this would involve authentication)
             window.location.href = "profile.html";
         });
@@ -1204,13 +1331,13 @@
         // Mobile menu toggle
         const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
         const navLinks = document.querySelector('.nav-links');
-        
-        mobileMenuBtn.addEventListener('click', function() {
+
+        mobileMenuBtn.addEventListener('click', function () {
             navLinks.style.display = navLinks.style.display === 'flex' ? 'none' : 'flex';
         });
 
         // Resize handler for mobile menu
-        window.addEventListener('resize', function() {
+        window.addEventListener('resize', function () {
             if (window.innerWidth > 640) {
                 navLinks.style.display = 'flex';
             } else {
@@ -1222,4 +1349,5 @@
         updateCurrentDate();
     </script>
 </body>
-    </html>
+
+</html>
