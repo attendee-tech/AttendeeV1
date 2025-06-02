@@ -1452,12 +1452,12 @@
                             // Instead of full reload, update UI selectively or fetch updated attendance data here:
                             await fetchAndUpdateAttendanceData();
 
-                            .log(sessionData).log(attendanceData);
+                            console.log(attendanceData);
                         } else {
                             alert("Access denied. You're not within range.");
                         }
                     } catch (error) {
-                        .log(sessionData).error('Error checking access:', error);
+                        console.error('Error checking access:', error);
                     }
                 });
             };
@@ -1774,7 +1774,7 @@
                     }
                     attachSessionClickListeners();
                 } catch (error) {
-                    .log(sessionData).error('Error fetching attendance data:', error);
+                    console.error('Error fetching attendance data:', error);
                 }
             }
 
@@ -1811,9 +1811,9 @@
                     // Fetch & render attendance data for the first time
                     await fetchAndUpdateAttendanceData();
 
-                    .log(sessionData).log(userData);
+                    console.log(userData);
                 } catch (error) {
-                    .log(sessionData).error('Error fetching user data:', error);
+                    console.error('Error fetching user data:', error);
                 }
             });
 
@@ -1854,7 +1854,7 @@
                     document.cookie = 'refresh_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC;';
                     window.location.href = 'login.html';
                 } catch (error) {
-                    .log(sessionData).error(error);
+                    console.error(error);
                 }
             });
 
