@@ -1452,12 +1452,12 @@
                             // Instead of full reload, update UI selectively or fetch updated attendance data here:
                             await fetchAndUpdateAttendanceData();
 
-                            console.log(attendanceData);
+                            .log(sessionData).log(attendanceData);
                         } else {
                             alert("Access denied. You're not within range.");
                         }
                     } catch (error) {
-                        console.error('Error checking access:', error);
+                        .log(sessionData).error('Error checking access:', error);
                     }
                 });
             };
@@ -1511,6 +1511,7 @@
 
                     // Destructure session data
                     const { latitude, longitude, range_radius, title } = sessionData;
+                    console.log(sessionData)
 
                     // Render map
                     initMapLive('map', latitude, longitude, range_radius, title);
@@ -1773,7 +1774,7 @@
                     }
                     attachSessionClickListeners();
                 } catch (error) {
-                    console.error('Error fetching attendance data:', error);
+                    .log(sessionData).error('Error fetching attendance data:', error);
                 }
             }
 
@@ -1810,9 +1811,9 @@
                     // Fetch & render attendance data for the first time
                     await fetchAndUpdateAttendanceData();
 
-                    console.log(userData);
+                    .log(sessionData).log(userData);
                 } catch (error) {
-                    console.error('Error fetching user data:', error);
+                    .log(sessionData).error('Error fetching user data:', error);
                 }
             });
 
@@ -1853,7 +1854,7 @@
                     document.cookie = 'refresh_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC;';
                     window.location.href = 'login.html';
                 } catch (error) {
-                    console.error(error);
+                    .log(sessionData).error(error);
                 }
             });
 
