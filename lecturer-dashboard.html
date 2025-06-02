@@ -1775,7 +1775,7 @@
                                 window.location.href = 'lecturer-dashboard.html';
                             } catch (error) {
                                 console.log(error);
-                                alert('Failed to create session');
+                                alert(`Failed to create session due to - (${error})`);
                             }
                         }, function (error) {
                             alert('Unable to retrieve location. Please enable location services.');
